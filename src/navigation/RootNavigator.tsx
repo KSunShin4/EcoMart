@@ -4,7 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useAuthStore } from '../store/authStore';
-import { View, Text, ActivityIndicator } from 'react-native';
+import { View, Text, ActivityIndicator, Image } from 'react-native';
 import { RootStackParamList, AuthStackParamList, MainTabParamList } from './types';
 
 // --- Màn hình Tạm thời (để trống cho team) ---
@@ -53,11 +53,52 @@ function AuthStackNavigator() {
 // 2. Bộ điều hướng MAIN (khi đã đăng nhập)
 function MainTabNavigator() {
   return (
-    <Tab.Navigator screenOptions={{ headerShown: false }}>
-      <Tab.Screen name="Trang chủ" component={HomeScreen} />
-      <Tab.Screen name="Đơn hàng từng mua" component={OrderHistoryScreen} />
-      <Tab.Screen name="Giỏ hàng" component={CartScreen} />
-      <Tab.Screen name="Tài khoản" component={AccountScreen} />
+    <Tab.Navigator
+      screenOptions={{ headerShown: false, tabBarShowLabel: true }}
+    >
+      <Tab.Screen
+        name="Trang chủ"
+        component={HomeScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Text style={{ color, fontSize: size }}>{'🏠'}</Text>
+          ),
+        }}
+      />
+
+      <Tab.Screen
+        name="Đơn hàng từng mua"
+        component={OrderHistoryScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Text style={{ color, fontSize: size }}>{'📃'}</Text>
+          ),
+        }}
+      />
+
+      <Tab.Screen
+        name="Giỏ hàng"
+        component={CartScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Text style={{ color, fontSize: size }}>{'🛒'}</Text>
+          ),
+        }}
+      />
+
+      <Tab.Screen
+        name="Tài khoản"
+        component={AccountScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Image
+              source={require('../../assets/user.png')}
+              style={{ width: size, height: size, borderRadius: size / 2 }}
+              resizeMode="cover"
+            />
+          ),
+        }}
+      />
     </Tab.Navigator>
   );
 }
