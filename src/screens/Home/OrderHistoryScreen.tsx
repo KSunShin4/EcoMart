@@ -1,0 +1,174 @@
+// src/screens/Home/OrderHistoryScreen.tsx
+import React from 'react';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { useOrders } from '../../hooks/useOrders';
+import { Card } from '../../components/Card';
+import { Button } from '../../components/Button';
+import { useNavigation } from '@react-navigation/native';
+import { RootStackParamList } from '../../navigation/types';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+type OrderHistoryNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Đơn hàng từng mua'>;
+
+
+const OrderCard = ({ order }: { order: any }) => {
+    const navigation = useNavigation<OrderHistoryNavigationProp>();
+    const getStatusStyle = (status: string) => {
+        if (status === 'completed') return { color: '#10B981', text: 'Hoàn thành' };
+        if (status === 'cancelled') return { color: '#EF4444', text: 'Đã hủy' };
+        return { color: '#F59E0B', text: 'Đang xử lý' };
+    };
+    const statusStyle = getStatusStyle(order.status);
+
+    return (
+        <Card>
+            <View style={styles.orderHeader}>
+                <Text style={styles.orderId}>Đơn hàng #{order.id}</Text>
+                <Text style={[styles.orderStatus, { color: statusStyle.color }]}>{statusStyle.text}</Text>
+            </View>
+            <View style={styles.orderBody}>
+                <Text style={styles.orderInfo}>Ngày đặt: {new Date(order.createdAt).toLocaleDateString('vi-VN')}</Text>
+                <Text style={styles.orderInfo}>Số sản phẩm: {order.items.length}</Text>
+                <Text style={styles.orderTotal}>Tổng tiền: {order.totalAmount.toLocaleString('vi-VN')}đ</Text>
+            </View>
+            <View style={styles.orderFooter}>
+                <Button title="Xem chi tiết" onPress={() => navigation.navigate('OrderDetail', { orderId: order.id })} />
+            </View>
+        </Card>
+    );
+};
+
+export const OrderHistoryScreen = () => {
+    const { data: orders, isLoading, isError } = useOrders();
+    const navigation = useNavigation();
+
+    const renderContent = () => {
+        if (isLoading) {
+            return <ActivityIndicator size="large" style={styles.center} />;
+        }
+        if (isError) {
+            return <Text style={styles.center}>Đã xảy ra lỗi khi tải đơn hàng.</Text>;
+        }
+        if (!orders || orders.length === 0) {
+            return (
+                <>
+                    <View style={styles.header1}>
+                        <TouchableOpacity style={styles.menuButton}>
+                            <Text style={styles.menuIcon}>☰</Text>
+                            <Text style={styles.menuText}>MENU</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={styles.searchBar}
+                            onPress={() => navigation.navigate('Search')}
+                        >
+                            <Text style={styles.searchIcon}>🔍</Text>
+                            <Text style={styles.searchPlaceholder}>
+                                Mua đơn tươi sống từ 150k - Freeship 3km
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+
+
+                    <View style={styles.emptyContainer}>
+                        <Text style={styles.emptyText}>📦</Text>
+                        <Text style={styles.emptyTitle}>Bạn chưa có đơn hàng nào</Text>
+                        <Button title="Bắt đầu mua sắm" onPress={() => navigation.navigate('Trang chủ')} />
+                    </View>
+                </>
+            );
+        }
+        return (
+            <FlatList
+                data={orders}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => <OrderCard order={item} />}
+                contentContainerStyle={styles.list}
+            />
+        );
+    };
+
+    return (
+        <>
+            <View style={styles.header1}>
+                <TouchableOpacity style={styles.menuButton}>
+                    <Text style={styles.menuIcon}>☰</Text>
+                    <Text style={styles.menuText}>MENU</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={styles.searchBar}
+                    onPress={() => navigation.navigate('Search')}
+                >
+                    <Text style={styles.searchIcon}>🔍</Text>
+                    <Text style={styles.searchPlaceholder}>
+                        Mua đơn tươi sống từ 150k - Freeship 3km
+                    </Text>
+                </TouchableOpacity>
+            </View>
+            <View style={styles.container}>
+                <View style={styles.header}>
+                    <Text style={styles.headerTitle}>Đơn hàng của bạn</Text>
+                </View>
+                {renderContent()}
+            </View>
+        </>
+
+    );
+};
+
+// ... (Thêm styles ở cuối)
+const styles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: '#F5F5F5' },
+    header: { paddingTop: 50, padding: 16, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#eee' },
+    headerTitle: { fontSize: 20, fontWeight: 'bold', textAlign: 'center' },
+    list: { paddingVertical: 8 },
+    orderHeader: { flexDirection: 'row', justifyContent: 'space-between', borderBottomWidth: 1, borderBottomColor: '#f0f0f0', paddingBottom: 12, marginBottom: 12 },
+    orderId: { fontSize: 16, fontWeight: '600' },
+    orderStatus: { fontSize: 14, fontWeight: 'bold' },
+    orderBody: { marginBottom: 16 },
+    orderInfo: { fontSize: 14, color: '#666', marginBottom: 4 },
+    orderTotal: { fontSize: 16, fontWeight: 'bold', marginTop: 8 },
+    orderFooter: { marginTop: 8 },
+    center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+    emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
+    emptyText: { fontSize: 80, marginBottom: 20 },
+    emptyTitle: { fontSize: 18, fontWeight: '600', marginBottom: 20 }, menuButton: {
+        alignItems: 'center',
+    },
+    menuIcon: {
+        fontSize: 24,
+        color: '#fff',
+    },
+    menuText: {
+        fontSize: 10,
+        color: '#fff',
+        fontWeight: '600',
+    },
+    searchBar: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+        borderRadius: 8,
+        paddingHorizontal: 12,
+        paddingVertical: 10,
+        gap: 8,
+    },
+    searchIcon: {
+        fontSize: 16,
+    },
+    searchPlaceholder: {
+        flex: 1,
+        fontSize: 13,
+        color: '#9CA3AF',
+    },
+    header1: {
+        backgroundColor: '#10B981',
+        paddingTop: 50,
+        paddingBottom: 12,
+        paddingHorizontal: 16,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+    },
+});

@@ -5,16 +5,19 @@ export type RootStackParamList = {
   EditProfile: undefined;
   Address: undefined;
   NotificationScreen: undefined;
-  ProductList: { 
-    categoryId?: string; 
-    categoryName?: string; 
-    isFlashSale?: boolean; 
+  ProductList: {
+    categoryId?: string;
+    categoryName?: string;
+    isFlashSale?: boolean;
     isFeatured?: boolean;
   } | undefined;
   ProductDetail: { productId: string };
   Search: undefined;
   Wishlist: undefined;
   Home: undefined;
+  Cart: undefined;
+  OrderHistory: undefined;
+  OrderDetail: { orderId: string };
 };
 
 export type AuthStackParamList = {

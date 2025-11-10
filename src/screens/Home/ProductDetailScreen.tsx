@@ -8,12 +8,13 @@ import {
   TouchableOpacity,
   Dimensions,
   FlatList,
+  Alert,
 } from 'react-native';
 import { Image } from 'expo-image';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useProduct, useReviews } from '../../hooks/useProducts';
 import { useWishlist } from '../../hooks/useWishlist';
-
+import { useCart } from '../../hooks/useCart';
 type Props = NativeStackScreenProps<any, 'ProductDetail'>;
 
 const { width } = Dimensions.get('window');
@@ -23,9 +24,23 @@ export const ProductDetailScreen: React.FC<Props> = ({ navigation, route }) => {
   const { data: product, isLoading } = useProduct(productId!);
   const { data: reviews = [] } = useReviews(productId!);
   const { toggleWishlist, isInWishlist } = useWishlist();
-
+  const { addToCart } = useCart();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [activeTab, setActiveTab] = useState<'description' | 'reviews'>('description');
+  const handleAddToCart = () => {
+    if (product) {
+      addToCart(product);
+      Alert.alert('Thành công', `Đã thêm "${product.name}" vào giỏ hàng.`);
+    }
+  };
+  const handleBuyNow = () => {
+    if (product) {
+      addToCart(product);
+      // Điều hướng đến Tab "Giỏ hàng" bên trong MainTabs
+      navigation.navigate('MainTabs', { screen: 'Giỏ hàng' });
+    }
+  };
+
 
   const imageListRef = useRef<FlatList>(null);
 
@@ -171,8 +186,8 @@ export const ProductDetailScreen: React.FC<Props> = ({ navigation, route }) => {
               <Text style={styles.metaLabel}>Loại:</Text>
               <Text style={styles.metaValue}>
                 {product.type === 'fresh' ? 'Tươi sống' :
-                 product.type === 'frozen' ? 'Đông lạnh' :
-                 product.type === 'dried' ? 'Khô' : 'Khác'}
+                  product.type === 'frozen' ? 'Đông lạnh' :
+                    product.type === 'dried' ? 'Khô' : 'Khác'}
               </Text>
             </View>
 
@@ -180,9 +195,9 @@ export const ProductDetailScreen: React.FC<Props> = ({ navigation, route }) => {
               <Text style={styles.metaLabel}>Mùa vụ:</Text>
               <Text style={styles.metaValue}>
                 {product.season === 'all' ? 'Quanh năm' :
-                 product.season === 'spring' ? 'Xuân' :
-                 product.season === 'summer' ? 'Hè' :
-                 product.season === 'autumn' ? 'Thu' : 'Đông'}
+                  product.season === 'spring' ? 'Xuân' :
+                    product.season === 'summer' ? 'Hè' :
+                      product.season === 'autumn' ? 'Thu' : 'Đông'}
               </Text>
             </View>
           </View>
@@ -273,10 +288,10 @@ export const ProductDetailScreen: React.FC<Props> = ({ navigation, route }) => {
 
       {/* Footer */}
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.addToCartButton}>
+        <TouchableOpacity style={styles.addToCartButton} onPress={handleAddToCart}>
           <Text style={styles.addToCartText}>Thêm vào giỏ hàng</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.buyNowButton}>
+        <TouchableOpacity style={styles.buyNowButton} onPress={handleBuyNow}>
           <Text style={styles.buyNowText}>Mua ngay</Text>
         </TouchableOpacity>
       </View>
