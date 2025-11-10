@@ -58,7 +58,7 @@ export const CartScreen = () => {
                 <View style={styles.emptyContainer}>
                     <Text style={styles.emptyText}>🛒</Text>
                     <Text style={styles.emptyTitle}>Giỏ hàng của bạn đang trống</Text>
-                    <Button title="Tiếp tục mua sắm" onPress={() => navigation.navigate('HomeScreen')} />
+                    <Button title="Tiếp tục mua sắm" onPress={() => navigation.navigate('Trang chủ')} />
                 </View>
 
             </>

@@ -48,4 +48,9 @@ export const orderApi = {
         const response = await client.get(`/orders/${orderId}`);
         return response.data;
     },
+    updateOrderStatus: async (orderId: string, status: 'completed' | 'cancelled'): Promise<Order> => {
+        // MockAPI sẽ tự động merge object này với dữ liệu hiện có của order
+        const response = await client.put(`/orders/${orderId}`, { status });
+        return response.data;
+    }
 }

@@ -1,10 +1,13 @@
 // src/screens/Home/OrderDetailScreen.tsx
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Image, TouchableOpacity, Alert } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useOrder } from '../../hooks/useOrders';
+import { useOrder, useUpdateOrderStatus } from '../../hooks/useOrders';
 import { RootStackParamList } from '../../navigation/types';
 import { Card } from '../../components/Card';
+import { Button } from '../../components/Button';
+
+
 
 type Props = NativeStackScreenProps<RootStackParamList, 'OrderDetail'>;
 
@@ -28,6 +31,38 @@ const getStatusStyle = (status: string) => {
 export const OrderDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     const { orderId } = route.params;
     const { data: order, isLoading, isError } = useOrder(orderId);
+    const { mutate: updateStatus, isPending: isUpdating } = useUpdateOrderStatus();
+
+    // --- LOGIC XỬ LÝ ---
+    const handlePayment = () => {
+        Alert.alert(
+            'Xác nhận thanh toán',
+            'Bạn có chắc chắn muốn hoàn tất thanh toán cho đơn hàng này?',
+            [
+                { text: 'Không' },
+                {
+                    text: 'Chắc chắn',
+                    onPress: () => updateStatus({ orderId, status: 'completed' }),
+                },
+            ]
+        );
+    };
+
+    const handleCancelOrder = () => {
+        Alert.alert(
+            'Xác nhận hủy đơn',
+            'Bạn có chắc chắn muốn hủy đơn hàng này không? Hành động này không thể hoàn tác.',
+            [
+                { text: 'Không', style: 'cancel' },
+                {
+                    text: 'Chắc chắn hủy',
+                    onPress: () => updateStatus({ orderId, status: 'cancelled' }),
+                    style: 'destructive',
+                },
+            ]
+        );
+    };
+
 
     if (isLoading) {
         return <View style={styles.center}><ActivityIndicator size="large" /></View>;
@@ -79,6 +114,27 @@ export const OrderDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                     </View>
                 </Card>
             </ScrollView>
+            {/* Nút hành động chỉ hiển thị khi đơn hàng đang xử lý */}
+            {order.status === 'pending' && (
+                <View style={styles.actionFooter}>
+                    <Button
+                        title="Thanh toán"
+                        onPress={handlePayment}
+                        loading={isUpdating}
+                    />
+                    <TouchableOpacity
+                        style={styles.cancelButton}
+                        onPress={handleCancelOrder}
+                        disabled={isUpdating}
+                    >
+                        <Text style={styles.cancelButtonText}>Hủy đơn hàng</Text>
+                    </TouchableOpacity>
+                </View>
+            )}
+
+
+
+
         </View>
     );
 };
@@ -119,4 +175,20 @@ const styles = StyleSheet.create({
     itemName: { fontSize: 15, fontWeight: '500' },
     itemInfo: { fontSize: 13, color: '#888', marginTop: 4 },
     itemQuantity: { fontSize: 16, fontWeight: '600' },
+    actionFooter: {
+        padding: 16,
+        backgroundColor: '#fff',
+        borderTopWidth: 1,
+        borderTopColor: '#eee',
+    },
+    cancelButton: {
+        marginTop: 12,
+        alignItems: 'center',
+        padding: 10,
+    },
+    cancelButtonText: {
+        color: '#EF4444',
+        fontSize: 15,
+        fontWeight: '500',
+    },
 });

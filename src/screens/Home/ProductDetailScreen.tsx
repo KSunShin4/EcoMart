@@ -33,6 +33,15 @@ export const ProductDetailScreen: React.FC<Props> = ({ navigation, route }) => {
       Alert.alert('Thành công', `Đã thêm "${product.name}" vào giỏ hàng.`);
     }
   };
+  const handleBuyNow = () => {
+    if (product) {
+      addToCart(product);
+      // Điều hướng đến Tab "Giỏ hàng" bên trong MainTabs
+      navigation.navigate('MainTabs', { screen: 'Giỏ hàng' });
+    }
+  };
+
+
   const imageListRef = useRef<FlatList>(null);
 
   if (isLoading || !product) {
@@ -282,7 +291,7 @@ export const ProductDetailScreen: React.FC<Props> = ({ navigation, route }) => {
         <TouchableOpacity style={styles.addToCartButton} onPress={handleAddToCart}>
           <Text style={styles.addToCartText}>Thêm vào giỏ hàng</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.buyNowButton}>
+        <TouchableOpacity style={styles.buyNowButton} onPress={handleBuyNow}>
           <Text style={styles.buyNowText}>Mua ngay</Text>
         </TouchableOpacity>
       </View>
