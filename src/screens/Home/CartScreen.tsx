@@ -1,30 +1,74 @@
-// src/screens/Home/HomeScreen.tsx
-import React, { useRef } from 'react';
-import {
-    View,
-    Text,
-    StyleSheet,
-    ScrollView,
-    FlatList,
-    TouchableOpacity,
-    Dimensions,
-    RefreshControl,
-} from 'react-native';
+// src/screens/Home/CartScreen.tsx
+import React from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
+import { useCart } from '../../hooks/useCart';
+import { CartItem } from '../../store/cartStore';
+import { Button } from '../../components/Button';
+import { useNavigation } from '@react-navigation/native';
 
+const CartItemCard: React.FC<{
+    item: CartItem;
+    onUpdateQuantity: (id: string, quantity: number) => void;
+    onRemove: (id: string) => void;
+}> = ({ item, onUpdateQuantity, onRemove }) => (
+    <View style={styles.itemContainer}>
+        <Image source={{ uri: item.product.thumbnail }} style={styles.itemImage} />
+        <View style={styles.itemDetails}>
+            <Text style={styles.itemName} numberOfLines={2}>{item.product.name}</Text>
+            <Text style={styles.itemPrice}>{item.product.price.toLocaleString('vi-VN')}đ</Text>
+            <TouchableOpacity onPress={() => onRemove(item.product.id)} style={styles.removeButton}>
+                <Text style={styles.removeButtonText}>Xóa</Text>
+            </TouchableOpacity>
+        </View>
+        <View style={styles.quantityContainer}>
+            <TouchableOpacity style={styles.quantityButton} onPress={() => onUpdateQuantity(item.product.id, item.quantity - 1)}>
+                <Text style={styles.quantityButtonText}>-</Text>
+            </TouchableOpacity>
+            <Text style={styles.quantityText}>{item.quantity}</Text>
+            <TouchableOpacity style={styles.quantityButton} onPress={() => onUpdateQuantity(item.product.id, item.quantity + 1)}>
+                <Text style={styles.quantityButtonText}>+</Text>
+            </TouchableOpacity>
+        </View>
+    </View>
+);
 
-type Props = {
-    navigation: any;
-};
+export const CartScreen = () => {
+    const { cartItems, totalPrice, totalItems, updateQuantity, removeFromCart, checkout, isCheckingOut } = useCart();
+    const navigation = useNavigation();
 
-const { width } = Dimensions.get('window');
+    if (cartItems.length === 0) {
+        return (
+            <>
+                <View style={styles.header1}>
+                    <TouchableOpacity style={styles.menuButton}>
+                        <Text style={styles.menuIcon}>☰</Text>
+                        <Text style={styles.menuText}>MENU</Text>
+                    </TouchableOpacity>
 
-export const CartScreen: React.FC<Props> = ({ navigation }) => {
+                    <TouchableOpacity
+                        style={styles.searchBar}
+                        onPress={() => navigation.navigate('Search')}
+                    >
+                        <Text style={styles.searchIcon}>🔍</Text>
+                        <Text style={styles.searchPlaceholder}>
+                            Mua đơn tươi sống từ 150k - Freeship 3km
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+                <View style={styles.emptyContainer}>
+                    <Text style={styles.emptyText}>🛒</Text>
+                    <Text style={styles.emptyTitle}>Giỏ hàng của bạn đang trống</Text>
+                    <Button title="Tiếp tục mua sắm" onPress={() => navigation.navigate('HomeScreen')} />
+                </View>
 
+            </>
+
+        );
+    }
 
     return (
-        <View style={styles.container}>
-            {/* Header */}
-            <View style={styles.header}>
+        <>
+            <View style={styles.header1}>
                 <TouchableOpacity style={styles.menuButton}>
                     <Text style={styles.menuIcon}>☰</Text>
                     <Text style={styles.menuText}>MENU</Text>
@@ -40,33 +84,58 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
                     </Text>
                 </TouchableOpacity>
             </View>
-            {/* body */}
+            <View style={styles.container}>
 
 
 
 
 
-
-
-
-        </View>
-    );
+                <View style={styles.header}>
+                    <Text style={styles.headerTitle}>Giỏ hàng ({totalItems})</Text>
+                </View>
+                <FlatList
+                    data={cartItems}
+                    keyExtractor={(item) => item.product.id}
+                    renderItem={({ item }) => (
+                        <CartItemCard item={item} onUpdateQuantity={updateQuantity} onRemove={removeFromCart} />
+                    )}
+                    contentContainerStyle={styles.list}
+                />
+                <View style={styles.footer}>
+                    <View style={styles.totalContainer}>
+                        <Text style={styles.totalLabel}>Tổng cộng:</Text>
+                        <Text style={styles.totalPrice}>{totalPrice.toLocaleString('vi-VN')}đ</Text>
+                    </View>
+                    <Button title="Đặt hàng" onPress={() => checkout()} loading={isCheckingOut} />
+                </View>
+            </View>
+        </>);
 };
 
+// ... (Thêm styles ở cuối)
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#F3F4F6',
-    },
-    header: {
-        backgroundColor: '#10B981',
-        paddingTop: 50,
-        paddingBottom: 12,
-        paddingHorizontal: 16,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 12,
-    },
+    container: { flex: 1, backgroundColor: '#F5F5F5' },
+    header: { paddingTop: 50, padding: 16, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#eee' },
+    headerTitle: { fontSize: 20, fontWeight: 'bold', textAlign: 'center' },
+    list: { paddingVertical: 8 },
+    itemContainer: { flexDirection: 'row', backgroundColor: '#fff', padding: 12, marginVertical: 4, marginHorizontal: 8, borderRadius: 8, alignItems: 'center' },
+    itemImage: { width: 80, height: 80, borderRadius: 8, marginRight: 12 },
+    itemDetails: { flex: 1, justifyContent: 'space-between' },
+    itemName: { fontSize: 15, fontWeight: '500' },
+    itemPrice: { fontSize: 16, fontWeight: 'bold', color: '#10B981', marginVertical: 4 },
+    removeButton: { alignSelf: 'flex-start' },
+    removeButtonText: { color: '#EF4444', fontSize: 13 },
+    quantityContainer: { flexDirection: 'row', alignItems: 'center' },
+    quantityButton: { width: 30, height: 30, borderRadius: 15, backgroundColor: '#f0f0f0', justifyContent: 'center', alignItems: 'center' },
+    quantityButtonText: { fontSize: 18, fontWeight: 'bold' },
+    quantityText: { fontSize: 16, marginHorizontal: 12, fontWeight: '600' },
+    footer: { padding: 16, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#eee' },
+    totalContainer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
+    totalLabel: { fontSize: 16, color: '#666' },
+    totalPrice: { fontSize: 20, fontWeight: 'bold', color: '#10B981' },
+    emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
+    emptyText: { fontSize: 80, marginBottom: 20 },
+    emptyTitle: { fontSize: 18, fontWeight: '600', marginBottom: 20 },
     menuButton: {
         alignItems: 'center',
     },
@@ -97,142 +166,13 @@ const styles = StyleSheet.create({
         fontSize: 13,
         color: '#9CA3AF',
     },
-    scrollView: {
-        flex: 1,
-    },
-    bannerContainer: {
-        position: 'relative',
-        height: 180,
-        marginBottom: 16,
-    },
-    bannerSkeleton: {
-        height: 180,
-        backgroundColor: '#E0E0E0',
-        marginBottom: 16,
-    },
-    bannerItem: {
-        width,
-        height: 180,
-        position: 'relative',
-    },
-    bannerImage: {
-        width: '100%',
-        height: '100%',
-    },
-    bannerOverlay: {
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.4)',
-        padding: 16,
-    },
-    bannerTitle: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: '#fff',
-        marginBottom: 4,
-    },
-    bannerSubtitle: {
-        fontSize: 12,
-        color: '#fff',
-    },
-    indicatorContainer: {
-        position: 'absolute',
-        bottom: 8,
-        alignSelf: 'center',
-        flexDirection: 'row',
-        gap: 6,
-    },
-    indicator: {
-        width: 8,
-        height: 8,
-        borderRadius: 4,
-        backgroundColor: 'rgba(255, 255, 255, 0.5)',
-    },
-    activeIndicator: {
-        backgroundColor: '#fff',
-        width: 24,
-    },
-    section: {
-        marginBottom: 24,
-    },
-    sectionHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
+    header1: {
+        backgroundColor: '#10B981',
+        paddingTop: 50,
+        paddingBottom: 12,
         paddingHorizontal: 16,
-        marginBottom: 12,
-    },
-    sectionTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#1F2937',
-    },
-    flashSaleHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
-    },
-    flashSaleIcon: {
-        fontSize: 20,
-    },
-    seeAllText: {
-        fontSize: 14,
-        color: '#10B981',
-        fontWeight: '600',
-    },
-    categoriesScroll: {
-        paddingLeft: 16,
-    },
-    categoryItem: {
-        width: 100,
-        marginRight: 12,
-        alignItems: 'center',
-    },
-    categorySkeleton: {
-        width: 100,
-        height: 120,
-        backgroundColor: '#E0E0E0',
-        borderRadius: 12,
-        marginRight: 12,
-    },
-    categoryImageContainer: {
-        position: 'relative',
-        width: 100,
-        height: 100,
-        borderRadius: 12,
-        overflow: 'hidden',
-        marginBottom: 8,
-    },
-    categoryImage: {
-        width: '100%',
-        height: '100%',
-    },
-    categoryBadge: {
-        position: 'absolute',
-        top: 4,
-        right: 4,
-        backgroundColor: '#EF4444',
-        paddingHorizontal: 6,
-        paddingVertical: 2,
-        borderRadius: 4,
-    },
-    categoryBadgeText: {
-        fontSize: 10,
-        color: '#fff',
-        fontWeight: 'bold',
-    },
-    categoryName: {
-        fontSize: 12,
-        color: '#1F2937',
-        textAlign: 'center',
-        fontWeight: '500',
-    },
-    categoryCount: {
-        fontSize: 10,
-        color: '#9CA3AF',
-        textAlign: 'center',
-        marginTop: 2,
+        gap: 12,
     },
 });

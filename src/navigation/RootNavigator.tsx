@@ -7,9 +7,6 @@ import { useAuthStore } from '../store/authStore';
 import { View, Text, ActivityIndicator, Image } from 'react-native';
 import { RootStackParamList, AuthStackParamList, MainTabParamList } from './types';
 
-// --- Màn hình Tạm thời (để trống cho team) ---
-const OrderHistoryScreen = () => <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><Text>Đơn hàng từng mua (Ng3)</Text></View>;
-
 // --- Màn hình Auth (Ng1) ---
 import { LoginScreen } from '../screens/Auth/LoginScreen';
 import { OTPScreen } from '../screens/Auth/OTPScreen';
@@ -18,6 +15,8 @@ import { EditProfileScreen } from '../screens/User/EditProfileScreen';
 import { AddressScreen } from '../screens/User/AddressScreen';
 import { NotificationScreen } from '../screens/User/NotificationScreen';
 import { CartScreen } from '../screens/Home/CartScreen';
+import { OrderHistoryScreen } from '../screens/Home/OrderHistoryScreen';
+import { OrderDetailScreen } from '../screens/Home/OrderDetailScreen';
 // --- Màn hình Home/Products (Ng2) ---
 import {
   HomeScreen,
@@ -133,8 +132,8 @@ export const RootNavigator = () => {
             <RootStack.Screen name="Search" component={SearchScreen} />
             <RootStack.Screen name="Wishlist" component={WishlistScreen} />
             <RootStack.Screen name="Cart" component={CartScreen} />
-
-
+            <RootStack.Screen name="OrderHistory" component={OrderHistoryScreen} />
+            <RootStack.Screen name="OrderDetail" component={OrderDetailScreen} />
           </>
         ) : (
           // 2. CHƯA ĐĂNG NHẬP
