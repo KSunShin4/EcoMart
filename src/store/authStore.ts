@@ -68,7 +68,6 @@ export const useAuthStore = create<AuthState>((set: any) => ({
       isLoading: false,
     });
     
-    /* Uncomment this block to enable real authentication
     try {
       const token = await AsyncStorage.getItem('accessToken');
       const userString = await AsyncStorage.getItem('user');
@@ -89,6 +88,5 @@ export const useAuthStore = create<AuthState>((set: any) => ({
       // Lỗi thì cũng coi như chưa đăng nhập
       set({ isLoading: false, isAuthenticated: false, isLoggedIn: false });
     }
-    */
   },
 }));
