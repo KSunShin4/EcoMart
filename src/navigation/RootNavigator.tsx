@@ -8,17 +8,25 @@ import { View, Text, ActivityIndicator } from 'react-native';
 import { RootStackParamList, AuthStackParamList, MainTabParamList } from './types';
 
 // --- Màn hình Tạm thời (để trống cho team) ---
-const HomeScreen = () => <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}><Text>Trang chủ (Ng2)</Text></View>;
 const OrderHistoryScreen = () => <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}><Text>Đơn hàng từng mua (Ng3)</Text></View>;
 const CartScreen = () => <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}><Text>Giỏ hàng (Ng3)</Text></View>;
 
-// --- Màn hình thật của BẠN (Ng1) ---
+// --- Màn hình Auth (Ng1) ---
 import { LoginScreen } from '../screens/Auth/LoginScreen';
 import { OTPScreen } from '../screens/Auth/OTPScreen';
 import { AccountScreen } from '../screens/User/AccountScreen';
 import { EditProfileScreen } from '../screens/User/EditProfileScreen';
 import { AddressScreen } from '../screens/User/AddressScreen';
 import { NotificationScreen } from '../screens/User/NotificationScreen';
+
+// --- Màn hình Home/Products (Ng2) ---
+import { 
+  HomeScreen,
+  ProductListScreen,
+  ProductDetailScreen,
+  SearchScreen,
+  WishlistScreen,
+} from '../screens/Home';
 
 // (Component Splash Screen)
 const SplashScreen = () => (
@@ -79,6 +87,11 @@ export const RootNavigator = () => {
             <RootStack.Screen name="EditProfile" component={EditProfileScreen} />
             <RootStack.Screen name="Address" component={AddressScreen} />
             <RootStack.Screen name="NotificationScreen" component={NotificationScreen} />
+            {/* Product screens */}
+            <RootStack.Screen name="ProductList" component={ProductListScreen} />
+            <RootStack.Screen name="ProductDetail" component={ProductDetailScreen} />
+            <RootStack.Screen name="Search" component={SearchScreen} />
+            <RootStack.Screen name="Wishlist" component={WishlistScreen} />
           </>
         ) : (
           // 2. CHƯA ĐĂNG NHẬP
