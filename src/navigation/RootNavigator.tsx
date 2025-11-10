@@ -4,21 +4,28 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useAuthStore } from '../store/authStore';
-import { View, Text, ActivityIndicator } from 'react-native';
+import { View, Text, ActivityIndicator, Image } from 'react-native';
 import { RootStackParamList, AuthStackParamList, MainTabParamList } from './types';
 
 // --- Màn hình Tạm thời (để trống cho team) ---
-const HomeScreen = () => <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}><Text>Trang chủ (Ng2)</Text></View>;
-const OrderHistoryScreen = () => <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}><Text>Đơn hàng từng mua (Ng3)</Text></View>;
-const CartScreen = () => <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}><Text>Giỏ hàng (Ng3)</Text></View>;
+const OrderHistoryScreen = () => <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><Text>Đơn hàng từng mua (Ng3)</Text></View>;
 
-// --- Màn hình thật của BẠN (Ng1) ---
+// --- Màn hình Auth (Ng1) ---
 import { LoginScreen } from '../screens/Auth/LoginScreen';
 import { OTPScreen } from '../screens/Auth/OTPScreen';
 import { AccountScreen } from '../screens/User/AccountScreen';
 import { EditProfileScreen } from '../screens/User/EditProfileScreen';
 import { AddressScreen } from '../screens/User/AddressScreen';
 import { NotificationScreen } from '../screens/User/NotificationScreen';
+import { CartScreen } from '../screens/Home/CartScreen';
+// --- Màn hình Home/Products (Ng2) ---
+import {
+  HomeScreen,
+  ProductListScreen,
+  ProductDetailScreen,
+  SearchScreen,
+  WishlistScreen,
+} from '../screens/Home';
 
 // (Component Splash Screen)
 const SplashScreen = () => (
@@ -45,11 +52,52 @@ function AuthStackNavigator() {
 // 2. Bộ điều hướng MAIN (khi đã đăng nhập)
 function MainTabNavigator() {
   return (
-    <Tab.Navigator screenOptions={{ headerShown: false }}>
-      <Tab.Screen name="Trang chủ" component={HomeScreen} />
-      <Tab.Screen name="Đơn hàng từng mua" component={OrderHistoryScreen} />
-      <Tab.Screen name="Giỏ hàng" component={CartScreen} />
-      <Tab.Screen name="Tài khoản" component={AccountScreen} />
+    <Tab.Navigator
+      screenOptions={{ headerShown: false, tabBarShowLabel: true }}
+    >
+      <Tab.Screen
+        name="Trang chủ"
+        component={HomeScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Text style={{ color, fontSize: size }}>{'🏠'}</Text>
+          ),
+        }}
+      />
+
+      <Tab.Screen
+        name="Đơn hàng từng mua"
+        component={OrderHistoryScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Text style={{ color, fontSize: size }}>{'📃'}</Text>
+          ),
+        }}
+      />
+
+      <Tab.Screen
+        name="Giỏ hàng"
+        component={CartScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Text style={{ color, fontSize: size }}>{'🛒'}</Text>
+          ),
+        }}
+      />
+
+      <Tab.Screen
+        name="Tài khoản"
+        component={AccountScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Image
+              source={require('../../assets/user.png')}
+              style={{ width: size, height: size, borderRadius: size / 2 }}
+              resizeMode="cover"
+            />
+          ),
+        }}
+      />
     </Tab.Navigator>
   );
 }
@@ -79,6 +127,14 @@ export const RootNavigator = () => {
             <RootStack.Screen name="EditProfile" component={EditProfileScreen} />
             <RootStack.Screen name="Address" component={AddressScreen} />
             <RootStack.Screen name="NotificationScreen" component={NotificationScreen} />
+            {/* Product screens */}
+            <RootStack.Screen name="ProductList" component={ProductListScreen} />
+            <RootStack.Screen name="ProductDetail" component={ProductDetailScreen} />
+            <RootStack.Screen name="Search" component={SearchScreen} />
+            <RootStack.Screen name="Wishlist" component={WishlistScreen} />
+            <RootStack.Screen name="Cart" component={CartScreen} />
+
+
           </>
         ) : (
           // 2. CHƯA ĐĂNG NHẬP
