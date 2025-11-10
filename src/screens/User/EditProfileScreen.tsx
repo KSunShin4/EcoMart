@@ -18,7 +18,8 @@ const ProfileSchema = Yup.object().shape({
 
 export const EditProfileScreen = () => {
   const navigation = useNavigation();
-  const { user, login } = useAuthStore(); // Lấy user và hàm login (để cập nhật user)
+  const { user } = useAuthStore(); // Lấy user
+  const setUser = useAuthStore((state: any) => state.setUser);
   
   const handleUpdate = async (
     values: { name: string; gender: string },
@@ -29,8 +30,8 @@ export const EditProfileScreen = () => {
       // Gọi mock API
       const response = await userApi.updateProfile(values.name, values.gender);
       
-      // Cập nhật lại thông tin user trong store
-      login(useAuthStore.getState().accessToken!, response.data); 
+  // Cập nhật lại thông tin user trong store (không thay token)
+  setUser(response.data);
       
       Alert.alert('Thành công', 'Đã lưu chỉnh sửa');
       navigation.goBack();

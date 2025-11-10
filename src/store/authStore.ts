@@ -21,6 +21,7 @@ type AuthState = {
   // Các hàm (actions) để thay đổi state
   login: (token: string, user: User) => Promise<void>;
   logout: () => Promise<void>;
+  setUser: (user: User) => void;
   checkAuthStatus: () => Promise<void>; // Hàm này sẽ chạy khi mở app
 };
 
@@ -35,6 +36,12 @@ export const useAuthStore = create<AuthState>((set: any) => ({
     await AsyncStorage.setItem('accessToken', token);
     await AsyncStorage.setItem('user', JSON.stringify(user));
     set({ accessToken: token, user, isAuthenticated: true });
+  },
+
+  // Cập nhật user trong store (không chạm accessToken)
+  setUser: (user: User) => {
+    AsyncStorage.setItem('user', JSON.stringify(user)).catch(() => {});
+    set({ user });
   },
 
   // Hàm XÓA khi đăng xuất
