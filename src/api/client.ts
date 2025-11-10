@@ -2,8 +2,7 @@
 import axios from 'axios';
 import { useAuthStore } from '../store/authStore';
 
-// MockAPI base URL (updated per user request)
-const MOCK_API_URL = 'https://69105e2645e65ab24ac6b89c.mockapi.io/';
+const MOCK_API_URL = 'https://69105e2645e65ab24ac6b89c.mockapi.io';
 
 const client = axios.create({
   baseURL: MOCK_API_URL,
