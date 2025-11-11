@@ -31,6 +31,7 @@ export const AccountScreen = () => {
         {/* Phần Header (Mã vạch, điểm) - Dựa trên */}
         <View style={styles.header}>
           <Text style={styles.userName}>{user?.name || 'Khách'}</Text>
+          <Text style={styles.phone}>phone.number'{user?.phone ?? '0912346'}'</Text>
           <Text style={styles.points}>Hạng Bạc - 6.495 điểm</Text>
           {/* Bạn có thể thêm component Mã vạch ở đây sau */}
         </View>
@@ -89,6 +90,11 @@ const styles = StyleSheet.create({
   points: {
     fontSize: 16,
     color: '#666',
+  },
+  phone: {
+    fontSize: 14,
+    color: '#333',
+    marginTop: 6,
   },
   logoutButtonContainer: {
     paddingHorizontal: 16,
