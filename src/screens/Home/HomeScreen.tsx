@@ -28,13 +28,11 @@ type Props = {
 const { width } = Dimensions.get('window');
 
 export const HomeScreen: React.FC<Props> = ({ navigation }) => {
-    console.log("HomeScreen rendered");
   const { data: banners, isLoading: bannersLoading, refetch: refetchBanners } = useBanners();
   const { data: categories, isLoading: categoriesLoading, refetch: refetchCategories } = useCategories();
   const { data: flashSaleProducts, isLoading: flashSaleLoading, refetch: refetchFlashSale } = useFlashSaleProducts();
   const { data: featuredProducts, isLoading: featuredLoading, refetch: refetchFeatured } = useFeaturedProducts();
   const { toggleWishlist, isInWishlist } = useWishlist();
-
   const [refreshing, setRefreshing] = React.useState(false);
 
   const onRefresh = React.useCallback(async () => {
@@ -71,7 +69,10 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.menuButton}>
+        <TouchableOpacity 
+          style={styles.menuButton}
+          onPress={() => navigation.navigate('Categories')}
+        >
           <Text style={styles.menuIcon}>☰</Text>
           <Text style={styles.menuText}>MENU</Text>
         </TouchableOpacity>

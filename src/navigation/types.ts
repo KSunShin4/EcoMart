@@ -15,6 +15,7 @@ export type RootStackParamList = {
   Search: undefined;
   Wishlist: undefined;
   Home: undefined;
+  Categories: undefined;
 };
 
 export type AuthStackParamList = {
