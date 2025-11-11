@@ -24,6 +24,7 @@ import {
   ProductDetailScreen,
   SearchScreen,
   WishlistScreen,
+  CategoriesScreen,
 } from '../screens/Home';
 
 // (Component Splash Screen)
@@ -127,6 +128,7 @@ export const RootNavigator = () => {
             <RootStack.Screen name="Address" component={AddressScreen} />
             <RootStack.Screen name="NotificationScreen" component={NotificationScreen} />
             {/* Product screens */}
+            <RootStack.Screen name="Categories" component={CategoriesScreen} />
             <RootStack.Screen name="ProductList" component={ProductListScreen} />
             <RootStack.Screen name="ProductDetail" component={ProductDetailScreen} />
             <RootStack.Screen name="Search" component={SearchScreen} />
