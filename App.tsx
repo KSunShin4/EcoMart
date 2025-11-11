@@ -1,6 +1,7 @@
 // App.tsx
 import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { RootNavigator } from './src/navigation/RootNavigator';
 import { AnimatedSplashScreen } from './src/screens/AnimatedSplashScreen';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -16,13 +17,19 @@ export default function App() {
   };
 
   if (showSplash) {
-    return <AnimatedSplashScreen onFinish={handleSplashFinish} duration={3000} />;
+    return (
+      <SafeAreaProvider>
+        <AnimatedSplashScreen onFinish={handleSplashFinish} duration={3000} />
+      </SafeAreaProvider>
+    );
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <RootNavigator />
-      <StatusBar style="auto" />
-    </QueryClientProvider>
+    <SafeAreaProvider>
+      <QueryClientProvider client={queryClient}>
+        <RootNavigator />
+        <StatusBar style="auto" />
+      </QueryClientProvider>
+    </SafeAreaProvider>
   );
 }
