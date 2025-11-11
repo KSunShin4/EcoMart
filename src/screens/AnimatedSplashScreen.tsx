@@ -9,7 +9,7 @@ interface AnimatedSplashScreenProps {
 
 export const AnimatedSplashScreen: React.FC<AnimatedSplashScreenProps> = ({
   onFinish,
-  duration = 3000,
+  duration = 5000,
 }) => {
   const insets = useSafeAreaInsets();
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
@@ -82,7 +82,7 @@ export const AnimatedSplashScreen: React.FC<AnimatedSplashScreenProps> = ({
           ]}
         >
           <View style={styles.logoCircle}>
-            <Text style={styles.emoji}>🌱</Text>
+            <Text style={styles.emoji}>🛍️</Text>
           </View>
         </Animated.View>
 
@@ -94,7 +94,7 @@ export const AnimatedSplashScreen: React.FC<AnimatedSplashScreenProps> = ({
           }}
         >
           <Text style={styles.title}>EcoMart</Text>
-          <Text style={styles.subtitle}>Green Living Starts Here</Text>
+          <Text style={styles.subtitle}>Eco-Friendly Shopping Made Easy</Text>
         </Animated.View>
       </Animated.View>
 

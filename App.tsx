@@ -19,7 +19,7 @@ export default function App() {
   if (showSplash) {
     return (
       <SafeAreaProvider>
-        <AnimatedSplashScreen onFinish={handleSplashFinish} duration={3000} />
+        <AnimatedSplashScreen onFinish={handleSplashFinish} duration={5000} />
       </SafeAreaProvider>
     );
   }
