@@ -106,16 +106,16 @@ Một ứng dụng thương mại điện tử di động được xây dựng b
 
 ## Cấu trúc thư mục
 
-Dự án được cấu trúc một cách logic và rõ ràng để dễ dàng bảo trì và mở rộng:
+Dự án được cấu trúc một cách logic và rõ ràng để dễ dàng bảo trì và mở rộng:<br>
 src/<br>
-├── api/ # Định nghĩa các hàm gọi API đến backend.
-├── assets/ # Chứa các tài nguyên tĩnh như ảnh, icon, font.
-├── components/ # Các component nhỏ, có thể tái sử dụng (Button, Card, ProductCard...).
-├── hooks/ # Chứa các custom hooks để đóng gói logic nghiệp vụ (useAuth, useCart...).
-├── navigation/ # Cấu hình React Navigation (stacks, tabs, types).
-├── screens/ # Các component màn hình chính của ứng dụng.
-├── store/ # Quản lý trạng thái toàn cục phía client bằng Zustand (authStore, cartStore).
-└── types/ # Định nghĩa các kiểu dữ liệu TypeScript chung cho toàn dự án.
+├── api/ # Định nghĩa các hàm gọi API đến backend.<br>
+├── assets/ # Chứa các tài nguyên tĩnh như ảnh, icon, font.<br>
+├── components/ # Các component nhỏ, có thể tái sử dụng (Button, Card, ProductCard...).<br>
+├── hooks/ # Chứa các custom hooks để đóng gói logic nghiệp vụ (useAuth, useCart...).<br>
+├── navigation/ # Cấu hình React Navigation (stacks, tabs, types).<br>
+├── screens/ # Các component màn hình chính của ứng dụng.<br>
+├── store/ # Quản lý trạng thái toàn cục phía client bằng Zustand (authStore, cartStore).<br>
+└── types/ # Định nghĩa các kiểu dữ liệu TypeScript chung cho toàn dự án.<br>
 
 
 ## Các Scripts có sẵn
