@@ -14,8 +14,6 @@ Một ứng dụng thương mại điện tử di động được xây dựng b
   - [Các bước cài đặt](#các-bước-cài-đặt)
 - [Cấu trúc thư mục](#cấu-trúc-thư-mục)
 - [Các Scripts có sẵn](#các-scripts-có-sẵn)
-- [Đóng góp](#đóng-góp)
-- [Giấy phép](#giấy-phép)
 
 ## Giới thiệu
 
