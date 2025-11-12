@@ -1,3 +1,5 @@
+
+
 // src/api/authApi.ts
 // src/api/authApi.ts
 // Mock auth API cho development: Mockpapi không hỗ trợ flow OTP đầy đủ,
@@ -24,7 +26,7 @@ export const verifyOTP = async (
   phone: string,
   otp: string
 ): Promise<{ data: { accessToken: string; user: { id: string; name: string; phone: string } } }> => {
-  // Nếu muốn tích hợp backend thật, thay implementation bằng client.post
+  // Khi tích hợp vào backend, thay implementation bằng client.post
   await new Promise((res) => setTimeout(res, 500));
 
   if (otp !== '123456') {
