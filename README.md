@@ -107,7 +107,7 @@ Một ứng dụng thương mại điện tử di động được xây dựng b
 ## Cấu trúc thư mục
 
 Dự án được cấu trúc một cách logic và rõ ràng để dễ dàng bảo trì và mở rộng:
-src/
+src/<br>
 ├── api/ # Định nghĩa các hàm gọi API đến backend.
 ├── assets/ # Chứa các tài nguyên tĩnh như ảnh, icon, font.
 ├── components/ # Các component nhỏ, có thể tái sử dụng (Button, Card, ProductCard...).
