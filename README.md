@@ -19,7 +19,7 @@ Một ứng dụng thương mại điện tử di động được xây dựng b
 
 ## Giới thiệu
 
-**EcoMart** là một dự án ứng dụng di động mô phỏng một sàn thương mại điện tử, tập trung vào các sản phẩm hữu cơ, tái chế và bền vững. Dự án được xây dựng với kiến trúc hiện đại, dễ bảo trì và mở rộng, sử dụng các thư viện hàng đầu trong hệ sinh thái React Native.
+**EcoMart** App bán hàng rau quả tươi, sạch, giao nhanh. Phát triển bằng React Native (Expo), phục vụ cho đồ án UIT – Nhóm 5
 
 ## Các chức năng chính
 
