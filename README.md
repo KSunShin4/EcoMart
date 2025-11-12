@@ -1,4 +1,4 @@
-# EcoMart - Ứng dụng E-commerce Sản phẩm xanh
+# EcoMart
 
 [![React Native](https://img.shields.io/badge/React%20Native-0.72-61DAFB?logo=react)](https://reactnative.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?logo=typescript)](https://www.typescriptlang.org/)
