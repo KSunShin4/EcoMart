@@ -5,9 +5,6 @@
 
 Một ứng dụng thương mại điện tử di động được xây dựng bằng React Native và Expo, tập trung vào việc cung cấp trải nghiệm mua sắm các sản phẩm thân thiện với môi trường.
 
-![Demo GIF](https://user-images.githubusercontent.com/ вашим_id/số_id/tên_file_demo.gif)
-*Lưu ý: Thay thế GIF trên bằng ảnh chụp màn hình hoặc GIF demo thực tế của ứng dụng.*
-
 ## Mục lục
 - [Giới thiệu](#giới-thiệu)
 - [Các chức năng chính](#các-chức-năng-chính)
