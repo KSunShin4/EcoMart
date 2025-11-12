@@ -1,9 +1,7 @@
 # EcoMart - Ứng dụng E-commerce Sản phẩm xanh
 
 [![React Native](https://img.shields.io/badge/React%20Native-0.72-61DAFB?logo=react)](https://reactnative.dev/)
-[![Expo](https://img-shields.io/badge/Expo-49-000020.svg?style=flat&logo=expo)](https://expo.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?logo=typescript)](https://www.typescriptlang.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Một ứng dụng thương mại điện tử di động được xây dựng bằng React Native và Expo, tập trung vào việc cung cấp trải nghiệm mua sắm các sản phẩm thân thiện với môi trường.
 
