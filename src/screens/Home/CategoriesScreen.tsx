@@ -6,12 +6,13 @@ import {
     StyleSheet,
     ScrollView,
     TouchableOpacity,
-    SafeAreaView,
+
     StatusBar,
 } from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { useCategories } from '../../hooks/useProducts';
-
+import Ionicons from '@expo/vector-icons/Ionicons';
 type Props = {
     navigation: any;
 };
@@ -23,17 +24,11 @@ export const CategoriesScreen: React.FC<Props> = ({ navigation }) => {
     const regularCategories = categories?.filter(cat => cat.id !== featuredCategory?.id);
 
     return (
-        <SafeAreaView style={styles.container}>
-            <StatusBar barStyle="light-content" backgroundColor="#10B981" />
+        <>
+            <View style={styles.header1}>
+                <TouchableOpacity style={styles.menuButton} onPress={() => navigation.goBack()}>
+                    <Ionicons name="arrow-back-outline" size={24} color="white" />
 
-            {/* Header */}
-            <View style={styles.header}>
-                <TouchableOpacity
-                    style={styles.headerButton}
-                    onPress={() => navigation.goBack()}
-                >
-                    <Text style={styles.closeIcon}>✕</Text>
-                    <Text style={styles.headerButtonText}>Đóng</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -42,96 +37,116 @@ export const CategoriesScreen: React.FC<Props> = ({ navigation }) => {
                 >
                     <Text style={styles.searchIcon}>🔍</Text>
                     <Text style={styles.searchPlaceholder}>
-                        Tìm nhanh trong nhóm hàng
+                        Mua đơn tươi sống từ 150k - Freeship 3km
                     </Text>
                 </TouchableOpacity>
-
             </View>
+            <SafeAreaView style={styles.container}>
+                <StatusBar barStyle="light-content" backgroundColor="#10B981" />
 
-            <ScrollView
-                style={styles.scrollView}
-                showsVerticalScrollIndicator={false}
-            >
-                {/* Featured Category Section */}
-                {featuredCategory && (
-                    <View style={styles.featuredSection}>
-                        <TouchableOpacity
-                            style={styles.featuredCard}
-                            onPress={() =>
-                                navigation.navigate('ProductList', {
-                                    categoryId: featuredCategory.id,
-                                    categoryName: featuredCategory.name,
-                                })
-                            }
-                        >
-                            <View style={styles.featuredContent}>
-                                <View style={styles.featuredTextContainer}>
-                                    <Text style={styles.featuredIcon}>{featuredCategory.icon}</Text>
-                                    <Text style={styles.featuredTitle}>
-                                        {featuredCategory.name}
-                                    </Text>
-                                    <Text style={styles.featuredSubtitle}>
-                                        ({featuredCategory.productCount} sản phẩm)
-                                    </Text>
-                                </View>
-                                <Image
-                                    source={{ uri: featuredCategory.image }}
-                                    style={styles.featuredImage}
-                                    contentFit="cover"
-                                />
-                                {featuredCategory.badge && (
-                                    <View style={styles.featuredBadge}>
-                                        <Text style={styles.featuredBadgeText}>
-                                            {featuredCategory.badge}
-                                        </Text>
-                                    </View>
-                                )}
-                            </View>
-                        </TouchableOpacity>
-                    </View>
-                )}
+                {/* Header */}
 
-                {/* All Categories Grid */}
-                <View style={styles.gridSection}>
-                    <View style={styles.categoryGrid}>
-                        {regularCategories?.map((category) => (
+                {/* <TouchableOpacity
+                    style={styles.headerButton}
+                    onPress={() => navigation.goBack()}
+                >
+                    <Text style={styles.closeIcon}>✕</Text>
+                    <Text style={styles.headerButtonText}>Đóng</Text>
+                </TouchableOpacity> */}
+
+
+
+
+
+
+
+
+
+                <ScrollView
+                    style={styles.scrollView}
+                    showsVerticalScrollIndicator={false}
+                >
+                    {/* Featured Category Section */}
+                    {featuredCategory && (
+                        <View style={styles.featuredSection}>
                             <TouchableOpacity
-                                key={category.id}
-                                style={styles.categoryItem}
+                                style={styles.featuredCard}
                                 onPress={() =>
                                     navigation.navigate('ProductList', {
-                                        categoryId: category.id,
-                                        categoryName: category.name,
+                                        categoryId: featuredCategory.id,
+                                        categoryName: featuredCategory.name,
                                     })
                                 }
                             >
-                                <View style={styles.categoryImageContainer}>
+                                <View style={styles.featuredContent}>
+                                    <View style={styles.featuredTextContainer}>
+                                        <Text style={styles.featuredIcon}>{featuredCategory.icon}</Text>
+                                        <Text style={styles.featuredTitle}>
+                                            {featuredCategory.name}
+                                        </Text>
+                                        <Text style={styles.featuredSubtitle}>
+                                            ({featuredCategory.productCount} sản phẩm)
+                                        </Text>
+                                    </View>
                                     <Image
-                                        source={{ uri: category.image }}
-                                        style={styles.categoryImage}
+                                        source={{ uri: featuredCategory.image }}
+                                        style={styles.featuredImage}
                                         contentFit="cover"
                                     />
-                                    {category.badge && (
-                                        <View style={styles.categoryBadge}>
-                                            <Text style={styles.categoryBadgeText}>
-                                                {category.badge}
+                                    {featuredCategory.badge && (
+                                        <View style={styles.featuredBadge}>
+                                            <Text style={styles.featuredBadgeText}>
+                                                {featuredCategory.badge}
                                             </Text>
                                         </View>
                                     )}
                                 </View>
-                                <Text style={styles.categoryName} numberOfLines={2}>
-                                    {category.name}
-                                </Text>
                             </TouchableOpacity>
-                        ))}
+                        </View>
+                    )}
+
+                    {/* All Categories Grid */}
+                    <View style={styles.gridSection}>
+                        <View style={styles.categoryGrid}>
+                            {regularCategories?.map((category) => (
+                                <TouchableOpacity
+                                    key={category.id}
+                                    style={styles.categoryItem}
+                                    onPress={() =>
+                                        navigation.navigate('ProductList', {
+                                            categoryId: category.id,
+                                            categoryName: category.name,
+                                        })
+                                    }
+                                >
+                                    <View style={styles.categoryImageContainer}>
+                                        <Image
+                                            source={{ uri: category.image }}
+                                            style={styles.categoryImage}
+                                            contentFit="cover"
+                                        />
+                                        {category.badge && (
+                                            <View style={styles.categoryBadge}>
+                                                <Text style={styles.categoryBadgeText}>
+                                                    {category.badge}
+                                                </Text>
+                                            </View>
+                                        )}
+                                    </View>
+                                    <Text style={styles.categoryName} numberOfLines={2}>
+                                        {category.name}
+                                    </Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
                     </View>
-                </View>
 
-                {/* Bottom Spacing */}
-                <View style={styles.bottomSpacing} />
-            </ScrollView>
+                    {/* Bottom Spacing */}
+                    <View style={styles.bottomSpacing} />
+                </ScrollView>
 
-        </SafeAreaView>
+            </SafeAreaView>
+        </>
     );
 };
 
@@ -140,6 +155,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#F3F4F6',
     },
+
     header: {
         backgroundColor: '#10B981',
         paddingHorizontal: 16,
@@ -319,5 +335,26 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontWeight: '600',
         marginTop: 2,
+    },
+    menuButton: {
+        alignItems: 'center',
+    },
+    menuIcon: {
+        fontSize: 24,
+        color: '#fff',
+    },
+    menuText: {
+        fontSize: 10,
+        color: '#fff',
+        fontWeight: '600',
+    },
+    header1: {
+        backgroundColor: '#10B981',
+        paddingTop: 50,
+        paddingBottom: 12,
+        paddingHorizontal: 16,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
     },
 });

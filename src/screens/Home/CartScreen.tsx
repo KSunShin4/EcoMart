@@ -68,8 +68,9 @@ export const CartScreen = () => {
 
     return (
         <>
+            {/* header */}
             <View style={styles.header1}>
-                <TouchableOpacity style={styles.menuButton}>
+                <TouchableOpacity style={styles.menuButton} onPress={() => navigation.navigate('Categories')}>
                     <Text style={styles.menuIcon}>☰</Text>
                     <Text style={styles.menuText}>MENU</Text>
                 </TouchableOpacity>
@@ -85,11 +86,6 @@ export const CartScreen = () => {
                 </TouchableOpacity>
             </View>
             <View style={styles.container}>
-
-
-
-
-
                 <View style={styles.header}>
                     <Text style={styles.headerTitle}>Giỏ hàng ({totalItems})</Text>
                 </View>

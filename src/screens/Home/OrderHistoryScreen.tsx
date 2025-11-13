@@ -60,7 +60,7 @@ export const OrderHistoryScreen = () => {
     const renderTabs = () => (
         <>
             <View style={styles.header1}>
-                <TouchableOpacity style={styles.menuButton}>
+                <TouchableOpacity style={styles.menuButton} onPress={() => navigation.navigate('Categories')}>
                     <Text style={styles.menuIcon}>☰</Text>
                     <Text style={styles.menuText}>MENU</Text>
                 </TouchableOpacity>
