@@ -13,7 +13,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ProductCard } from '../../components/ProductCard';
 import { useSearch } from '../../hooks/useSearch';
 import { useWishlist } from '../../hooks/useWishlist';
-
+import Ionicons from '@expo/vector-icons/Ionicons';
 type Props = NativeStackScreenProps<any, 'Search'>;
 
 export const SearchScreen: React.FC<Props> = ({ navigation }) => {
@@ -54,7 +54,7 @@ export const SearchScreen: React.FC<Props> = ({ navigation }) => {
   const renderSearchBar = () => (
     <View style={styles.searchBarContainer}>
       <TouchableOpacity onPress={() => navigation.goBack()}>
-        <Text style={styles.backIcon}>←</Text>
+        <Ionicons name="arrow-back-outline" size={24} color="white" />
       </TouchableOpacity>
 
       <View style={styles.searchInputContainer}>
@@ -366,5 +366,14 @@ const styles = StyleSheet.create({
   productItem: {
     width: '50%',
     padding: 4,
+  }, searchBar: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    gap: 8,
   },
 });

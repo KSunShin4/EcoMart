@@ -68,7 +68,7 @@ function MainTabNavigator() {
       />
 
       <Tab.Screen
-        name="Đơn hàng từng mua"
+        name="Đơn hàng"
         component={OrderHistoryScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
