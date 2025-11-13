@@ -1,5 +1,5 @@
 // src/screens/Home/OrderHistoryScreen.tsx
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useOrders } from '../../hooks/useOrders';
 import { Card } from '../../components/Card';
@@ -7,8 +7,15 @@ import { Button } from '../../components/Button';
 import { useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '../../navigation/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
 type OrderHistoryNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Đơn hàng từng mua'>;
 
+const TABS = [
+    { label: 'Tất cả', value: 'all' },
+    { label: 'Đang xử lý', value: 'pending' },
+    { label: 'Hoàn thành', value: 'completed' },
+    { label: 'Đã hủy', value: 'cancelled' },
+];
 
 const OrderCard = ({ order }: { order: any }) => {
     const navigation = useNavigation<OrderHistoryNavigationProp>();
@@ -40,54 +47,17 @@ const OrderCard = ({ order }: { order: any }) => {
 export const OrderHistoryScreen = () => {
     const { data: orders, isLoading, isError } = useOrders();
     const navigation = useNavigation();
+    const [activeTab, setActiveTab] = useState('all');
 
-    const renderContent = () => {
-        if (isLoading) {
-            return <ActivityIndicator size="large" style={styles.center} />;
+    const filteredOrders = useMemo(() => {
+        if (!orders) return [];
+        if (activeTab === 'all') {
+            return orders;
         }
-        if (isError) {
-            return <Text style={styles.center}>Đã xảy ra lỗi khi tải đơn hàng.</Text>;
-        }
-        if (!orders || orders.length === 0) {
-            return (
-                <>
-                    <View style={styles.header1}>
-                        <TouchableOpacity style={styles.menuButton}>
-                            <Text style={styles.menuIcon}>☰</Text>
-                            <Text style={styles.menuText}>MENU</Text>
-                        </TouchableOpacity>
+        return orders.filter(order => order.status === activeTab);
+    }, [orders, activeTab]);
 
-                        <TouchableOpacity
-                            style={styles.searchBar}
-                            onPress={() => navigation.navigate('Search')}
-                        >
-                            <Text style={styles.searchIcon}>🔍</Text>
-                            <Text style={styles.searchPlaceholder}>
-                                Mua đơn tươi sống từ 150k - Freeship 3km
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
-
-
-                    <View style={styles.emptyContainer}>
-                        <Text style={styles.emptyText}>📦</Text>
-                        <Text style={styles.emptyTitle}>Bạn chưa có đơn hàng nào</Text>
-                        <Button title="Bắt đầu mua sắm" onPress={() => navigation.navigate('Trang chủ')} />
-                    </View>
-                </>
-            );
-        }
-        return (
-            <FlatList
-                data={orders}
-                keyExtractor={(item) => item.id}
-                renderItem={({ item }) => <OrderCard order={item} />}
-                contentContainerStyle={styles.list}
-            />
-        );
-    };
-
-    return (
+    const renderTabs = () => (
         <>
             <View style={styles.header1}>
                 <TouchableOpacity style={styles.menuButton}>
@@ -105,22 +75,85 @@ export const OrderHistoryScreen = () => {
                     </Text>
                 </TouchableOpacity>
             </View>
-            <View style={styles.container}>
-                <View style={styles.header}>
-                    <Text style={styles.headerTitle}>Đơn hàng của bạn</Text>
-                </View>
-                {renderContent()}
+
+            <View style={styles.header}>
+                <Text style={styles.headerTitle}>Đơn hàng của bạn</Text>
+            </View>
+
+
+
+
+
+
+
+            <View style={styles.tabContainer}>
+                {TABS.map(tab => (
+                    <TouchableOpacity
+                        key={tab.value}
+                        style={[styles.tab, activeTab === tab.value && styles.activeTab]}
+                        onPress={() => setActiveTab(tab.value)}
+                    >
+                        <Text style={[styles.tabText, activeTab === tab.value && styles.activeTabText]}>
+                            {tab.label}
+                        </Text>
+                    </TouchableOpacity>
+                ))}
             </View>
         </>
+    );
 
+    const renderContent = () => {
+        if (isLoading) {
+            return <ActivityIndicator size="large" style={styles.center} />;
+        }
+        if (isError) {
+            return <Text style={styles.center}>Đã xảy ra lỗi khi tải đơn hàng.</Text>;
+        }
+        if (!orders || orders.length === 0) {
+            return (
+                <>
+
+                    <View style={styles.emptyContainer}>
+                        <Text style={styles.emptyText}>📦</Text>
+                        <Text style={styles.emptyTitle}>Bạn chưa có đơn hàng nào</Text>
+                        <Button title="Bắt đầu mua sắm" onPress={() => navigation.navigate('Trang chủ')} />
+                    </View>
+                </>
+            );
+        }
+        return (
+            <>
+
+
+
+                {renderTabs()}
+                <FlatList
+                    data={filteredOrders}
+                    keyExtractor={(item) => item.id}
+                    renderItem={({ item }) => <OrderCard order={item} />}
+                    contentContainerStyle={styles.list}
+                    ListEmptyComponent={
+                        <View style={styles.emptyFilteredContainer}>
+                            <Text>Không có đơn hàng nào ở trạng thái này.</Text>
+                        </View>
+                    }
+                />
+            </>
+        );
+    };
+
+    return (
+        <View style={styles.container}>
+            {renderContent()}
+
+        </View>
     );
 };
 
-// ... (Thêm styles ở cuối)
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#F5F5F5' },
-    header: { paddingTop: 50, padding: 16, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#eee' },
-    headerTitle: { fontSize: 20, fontWeight: 'bold', textAlign: 'center' },
+    header: { paddingTop: 10, paddingBottom: 10, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#eee', alignItems: 'center' },
+    headerTitle: { fontSize: 20, fontWeight: 'bold' },
     list: { paddingVertical: 8 },
     orderHeader: { flexDirection: 'row', justifyContent: 'space-between', borderBottomWidth: 1, borderBottomColor: '#f0f0f0', paddingBottom: 12, marginBottom: 12 },
     orderId: { fontSize: 16, fontWeight: '600' },
@@ -132,7 +165,40 @@ const styles = StyleSheet.create({
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
     emptyText: { fontSize: 80, marginBottom: 20 },
-    emptyTitle: { fontSize: 18, fontWeight: '600', marginBottom: 20 }, menuButton: {
+    emptyTitle: { fontSize: 18, fontWeight: '600', marginBottom: 20 },
+    emptyFilteredContainer: {
+        padding: 40,
+        alignItems: 'center',
+    },
+    tabContainer: {
+        flexDirection: 'row',
+        backgroundColor: '#fff',
+        paddingHorizontal: 8,
+        paddingTop: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: '#eee',
+    },
+    tab: {
+        flex: 1,
+        paddingVertical: 10,
+        alignItems: 'center',
+        borderBottomWidth: 3,
+        borderBottomColor: 'transparent',
+        marginBottom: -1
+    },
+    activeTab: {
+        borderBottomColor: '#10B981',
+    },
+    tabText: {
+        fontSize: 14,
+        color: '#666',
+    },
+    activeTabText: {
+        color: '#10B981',
+        fontWeight: '600',
+    },
+
+    menuButton: {
         alignItems: 'center',
     },
     menuIcon: {
@@ -171,4 +237,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 12,
     },
+
+
 });

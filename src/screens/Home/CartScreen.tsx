@@ -115,7 +115,7 @@ export const CartScreen = () => {
 // ... (Thêm styles ở cuối)
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#F5F5F5' },
-    header: { paddingTop: 50, padding: 16, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#eee' },
+    header: { paddingTop: 10, padding: 10, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#eee' },
     headerTitle: { fontSize: 20, fontWeight: 'bold', textAlign: 'center' },
     list: { paddingVertical: 8 },
     itemContainer: { flexDirection: 'row', backgroundColor: '#fff', padding: 12, marginVertical: 4, marginHorizontal: 8, borderRadius: 8, alignItems: 'center' },
