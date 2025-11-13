@@ -4,8 +4,9 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useAuthStore } from '../store/authStore';
-import { View, Text, ActivityIndicator, Image } from 'react-native';
+import { View, Text, ActivityIndicator } from 'react-native';
 import { RootStackParamList, AuthStackParamList, MainTabParamList } from './types';
+import { Feather } from '@expo/vector-icons'; // Thêm import icon
 
 // --- Màn hình Auth (Ng1) ---
 import { LoginScreen } from '../screens/Auth/LoginScreen';
@@ -13,6 +14,7 @@ import { OTPScreen } from '../screens/Auth/OTPScreen';
 import { AccountScreen } from '../screens/User/AccountScreen';
 import { EditProfileScreen } from '../screens/User/EditProfileScreen';
 import { AddressScreen } from '../screens/User/AddressScreen';
+import { AddEditAddressScreen } from '../screens/User/AddEditAddressScreen';
 import { NotificationScreen } from '../screens/User/NotificationScreen';
 import { CartScreen } from '../screens/Home/CartScreen';
 import { OrderHistoryScreen } from '../screens/Home/OrderHistoryScreen';
@@ -60,7 +62,7 @@ function MainTabNavigator() {
         component={HomeScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Text style={{ color, fontSize: size }}>{'🏠'}</Text>
+            <Feather name="grid" color={color} size={size} />
           ),
         }}
       />
@@ -70,7 +72,7 @@ function MainTabNavigator() {
         component={OrderHistoryScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Text style={{ color, fontSize: size }}>{'📃'}</Text>
+            <Feather name="file-text" color={color} size={size} />
           ),
         }}
       />
@@ -80,7 +82,7 @@ function MainTabNavigator() {
         component={CartScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Text style={{ color, fontSize: size }}>{'🛒'}</Text>
+            <Feather name="shopping-cart" color={color} size={size} />
           ),
         }}
       />
@@ -90,11 +92,7 @@ function MainTabNavigator() {
         component={AccountScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Image
-              source={require('../../assets/user.png')}
-              style={{ width: size, height: size, borderRadius: size / 2 }}
-              resizeMode="cover"
-            />
+            <Feather name="user" color={color} size={size} />
           ),
         }}
       />
@@ -126,6 +124,7 @@ export const RootNavigator = () => {
             {/* Các màn hình con (không nằm trong tab) */}
             <RootStack.Screen name="EditProfile" component={EditProfileScreen} />
             <RootStack.Screen name="Address" component={AddressScreen} />
+            <RootStack.Screen name="AddEditAddress" component={AddEditAddressScreen} />
             <RootStack.Screen name="NotificationScreen" component={NotificationScreen} />
             {/* Product screens */}
             <RootStack.Screen name="Categories" component={CategoriesScreen} />

@@ -1,13 +1,18 @@
 // src/screens/User/AddressScreen.tsx
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, FlatList, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as userApi from '../../api/userApi';
-import { Button } from '../../components/Button'; // Import Button
+import { Button } from '../../components/Button';
+import { RootStackParamList } from '../../navigation/types';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+type AddressNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Address'>;
 
 export const AddressScreen = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<AddressNavigationProp>();
+  const queryClient = useQueryClient();
 
   // Dùng React Query để lấy dữ liệu từ Mock API
   const { data: addresses, isLoading, error } = useQuery({
@@ -15,18 +20,58 @@ export const AddressScreen = () => {
     queryFn: userApi.getAddresses,
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: userApi.deleteAddress,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['addresses'] });
+      Alert.alert('Thành công', 'Đã xóa địa chỉ');
+    },
+    onError: (error: any) => {
+      Alert.alert('Lỗi', error?.message || 'Không thể xóa địa chỉ. Vui lòng thử lại.');
+    },
+  });
+
+  const handleEdit = (addressId: string) => {
+    navigation.navigate('AddEditAddress', { addressId });
+  };
+
+  const handleDelete = (addressId: string, addressName: string) => {
+    Alert.alert(
+      'Xác nhận xóa',
+      `Bạn có chắc chắn muốn xóa địa chỉ "${addressName}"?`,
+      [
+        { text: 'Hủy', style: 'cancel' },
+        {
+          text: 'Xóa',
+          style: 'destructive',
+          onPress: () => deleteMutation.mutate(addressId),
+        },
+      ]
+    );
+  };
+
+  const handleAdd = () => {
+    navigation.navigate('AddEditAddress', {});
+  };
+
   const renderAddress = ({ item }: { item: userApi.Address }) => (
     <View style={styles.addressCard}>
       <View style={styles.addressHeader}>
-        <Text style={styles.addressName}>{item.name}</Text>
+        <View style={styles.addressInfo}>
+          <Text style={styles.addressName}>{item.name}</Text>
+          {item.isDefault && <Text style={styles.defaultBadge}>Mặc định</Text>}
+        </View>
         <View style={styles.buttonGroup}>
-          <TouchableOpacity><Text style={styles.editButton}>Sửa</Text></TouchableOpacity>
-          <TouchableOpacity><Text style={styles.deleteButton}>Xóa</Text></TouchableOpacity>
+          <TouchableOpacity onPress={() => handleEdit(item.id)}>
+            <Text style={styles.editButton}>Sửa</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => handleDelete(item.id, item.name)}>
+            <Text style={styles.deleteButton}>Xóa</Text>
+          </TouchableOpacity>
         </View>
       </View>
-      <Text style={styles.addressText}>{item.phone}</Text>
-      <Text style={styles.addressText}>{item.fullAddress}</Text>
-      {item.isDefault && <Text style={styles.defaultBadge}>Mặc định</Text>}
+      <Text style={styles.addressText}>📞 {item.phone}</Text>
+      <Text style={styles.addressText}>📍 {item.fullAddress}</Text>
     </View>
   );
 
@@ -36,21 +81,30 @@ export const AddressScreen = () => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Text style={styles.backButton}>{'<'}</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Thông tin nhận hàng</Text>
+        <Text style={styles.headerTitle}>Địa chỉ nhận hàng</Text>
       </View>
 
       {isLoading && <ActivityIndicator size="large" style={{ marginTop: 20 }} />}
       {error && <Text style={styles.errorText}>Không thể tải địa chỉ</Text>}
       
+      {!isLoading && (!addresses || addresses.length === 0) && (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>📍</Text>
+          <Text style={styles.emptyTitle}>Bạn chưa có địa chỉ nào</Text>
+          <Text style={styles.emptySubtitle}>Thêm địa chỉ để nhận hàng nhanh chóng</Text>
+        </View>
+      )}
+
       <FlatList
         data={addresses}
         renderItem={renderAddress}
         keyExtractor={(item) => item.id}
+        contentContainerStyle={!addresses || addresses.length === 0 ? styles.emptyList : styles.list}
         ListFooterComponent={
           <View style={{ padding: 16 }}>
             <Button 
-              title="+ Thêm thông tin nhận hàng" 
-              onPress={() => { /* TODO: Mở màn hình Thêm/Sửa địa chỉ */ }}
+              title="+ Thêm địa chỉ mới" 
+              onPress={handleAdd}
             />
           </View>
         }
@@ -72,26 +126,86 @@ const styles = StyleSheet.create({
   backButton: { fontSize: 24, marginRight: 16 },
   headerTitle: { fontSize: 18, fontWeight: 'bold' },
   errorText: { textAlign: 'center', color: 'red', marginTop: 10 },
+  list: {
+    paddingVertical: 16,
+  },
   addressCard: {
     backgroundColor: '#FFFFFF',
     padding: 16,
     marginHorizontal: 16,
-    marginTop: 16,
+    marginBottom: 16,
     borderRadius: 8,
-  },
-  addressHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  addressName: { fontSize: 16, fontWeight: 'bold' },
-  buttonGroup: { flexDirection: 'row' },
-  editButton: { color: '#00884A', marginRight: 16 },
-  deleteButton: { color: 'red' },
-  addressText: { fontSize: 14, color: '#333', marginTop: 4 },
-  defaultBadge: {
-    color: '#00884A',
-    borderColor: '#00884A',
     borderWidth: 1,
+    borderColor: '#F0F0F0',
+  },
+  addressHeader: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'flex-start',
+    marginBottom: 12,
+  },
+  addressInfo: {
+    flex: 1,
+  },
+  addressName: { 
+    fontSize: 16, 
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  buttonGroup: { 
+    flexDirection: 'row',
+    gap: 12,
+  },
+  editButton: { 
+    color: '#10B981', 
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  deleteButton: { 
+    color: '#EF4444',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  addressText: { 
+    fontSize: 14, 
+    color: '#666', 
+    marginTop: 4,
+    lineHeight: 20,
+  },
+  defaultBadge: {
+    color: '#10B981',
+    backgroundColor: '#E6F7F0',
     borderRadius: 4,
-    padding: 4,
-    marginTop: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    fontSize: 12,
+    fontWeight: '600',
     alignSelf: 'flex-start',
+    marginTop: 4,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 40,
+  },
+  emptyList: {
+    flexGrow: 1,
+  },
+  emptyText: {
+    fontSize: 64,
+    marginBottom: 16,
+  },
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  emptySubtitle: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
   },
 });

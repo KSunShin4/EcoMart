@@ -18,12 +18,13 @@ export const requestLoginOTP = async (phone: string): Promise<void> => {
 };
 
 /**
- * Xác thực OTP (mock): chấp nhận mã '123456' trả về token + user mẫu
+ * Xác thực OTP và lưu thông tin đăng nhập vào MockAPI
+ * Chấp nhận mã '123456' trả về token + user
  */
 export const verifyOTP = async (
   phone: string,
   otp: string
-): Promise<{ data: { accessToken: string; user: { id: string; name: string; phone: string } } }> => {
+): Promise<{ data: { accessToken: string; user: { id: string; name: string; phone: string; gender?: string } } }> => {
   // Nếu muốn tích hợp backend thật, thay implementation bằng client.post
   await new Promise((res) => setTimeout(res, 500));
 
@@ -32,41 +33,75 @@ export const verifyOTP = async (
   }
 
   try {
-    // Tìm user trên MockAPI theo phone (MockAPI hỗ trợ query param)
-    const searchRes = await client.get('/users', { params: { phone } });
     let user: any = null;
-
-    if (Array.isArray(searchRes.data) && searchRes.data.length > 0) {
-      user = searchRes.data[0];
-      // Đồng bộ tên thành "Nhóm 5" nếu khác (tuỳ chọn)
-      if (user.name !== 'Nhóm 5') {
-        try {
-          const upd = await client.put(`/users/${user.id}`, { ...user, name: 'Nhóm 5' });
-          user = upd.data;
-        } catch (e) {
-          // nếu update thất bại, giữ user hiện tại
-          console.warn('[authApi] unable to update user name', e);
-        }
+    
+    // Tìm user trên MockAPI theo phone (MockAPI hỗ trợ query param)
+    try {
+      const searchRes = await client.get('/users', { params: { phone } });
+      
+      if (Array.isArray(searchRes.data) && searchRes.data.length > 0) {
+        // User đã tồn tại - lấy thông tin hiện tại từ MockAPI
+        user = searchRes.data[0];
+        console.log('[authApi] User found in MockAPI:', user);
       }
-    } else {
-      // Tạo user mới trên MockAPI
-      const createRes = await client.post('/users', { name: 'Nhóm 5', phone });
-      user = createRes.data;
+    } catch (searchError: any) {
+      // Nếu lỗi 404, có thể resource chưa được tạo, sẽ thử tạo user mới
+      if (searchError?.response?.status !== 404) {
+        console.warn('[authApi] Error searching user:', searchError);
+      }
+    }
+    
+    // Nếu không tìm thấy user, tạo user mới
+    if (!user) {
+      try {
+        const userData: any = {
+          name: 'Nhóm 5', // Tên mặc định cho user mới
+          phone: phone,
+          // gender sẽ được thêm sau khi user chỉnh sửa profile
+        };
+        
+        const createRes = await client.post('/users', userData);
+        user = createRes.data;
+        console.log('[authApi] New user created in MockAPI:', user);
+      } catch (createError: any) {
+        // Nếu không tạo được user (có thể do MockAPI chưa có resource /users)
+        console.warn('[authApi] Cannot create user on MockAPI:', createError);
+        console.error('[authApi] Create error details:', createError?.response?.data || createError?.message);
+        
+        // Fallback về mock local
+        throw createError;
+      }
     }
 
+    // Trả về user với đầy đủ thông tin
+    const userResponse = {
+      id: String(user.id),
+      name: user.name || 'Nhóm 5',
+      phone: user.phone || phone,
+      ...(user.gender && { gender: user.gender }),
+    };
+
     return {
       data: {
         accessToken: 'mock-token-123456',
-        user: { id: String(user.id), name: user.name ?? 'Nhóm 5', phone: user.phone ?? phone },
+        user: userResponse,
       },
     };
-  } catch (err) {
-    // Nếu có lỗi mạng với MockAPI, fallback về mock local (không persist)
+  } catch (err: any) {
+    // Nếu có lỗi với MockAPI, fallback về mock local (không persist)
     console.warn('[authApi] MockAPI unavailable, falling back to local mock user', err);
+    console.error('[authApi] Error details:', err?.response?.data || err?.message);
+    
+    // Lưu ý: User với ID mock local sẽ được tạo trên MockAPI khi update profile
     return {
       data: {
         accessToken: 'mock-token-123456',
-        user: { id: 'user-mock-1', name: 'Nhóm 5', phone },
+        user: { 
+          id: `user-mock-${Date.now()}`, // Dùng timestamp để unique
+          name: 'Nhóm 5', 
+          phone,
+          // Không có gender vì đây là mock local, sẽ được thêm khi update profile
+        },
       },
     };
   }

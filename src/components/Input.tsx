@@ -13,6 +13,8 @@ type InputProps = {
   secureTextEntry?: boolean;
   disabled?: boolean;
   keyboardType?: 'default' | 'phone-pad' | 'email-address';
+  multiline?: boolean;
+  numberOfLines?: number;
 };
 
 export const Input = ({
@@ -31,11 +33,14 @@ export const Input = ({
     <View style={styles.container}>
       <Text style={styles.label}>{label}</Text>
       <TextInput
-        style={[styles.input, isError && styles.inputError]}
+        style={[styles.input, isError && styles.inputError, props.multiline && styles.inputMultiline]}
         value={value}
         onChangeText={onChangeText}
         onBlur={onBlur}
         placeholder={placeholder}
+        multiline={props.multiline}
+        numberOfLines={props.numberOfLines}
+        textAlignVertical={props.multiline ? 'top' : 'center'}
         {...props}
       />
       {isError && <Text style={styles.errorText}>{error}</Text>}
@@ -60,6 +65,11 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 14,
     fontSize: 16,
+    minHeight: 48,
+  },
+  inputMultiline: {
+    minHeight: 100,
+    paddingTop: 14,
   },
   inputError: {
     borderColor: 'red',

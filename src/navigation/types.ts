@@ -4,6 +4,7 @@ export type RootStackParamList = {
   MainTabs: undefined;
   EditProfile: undefined;
   Address: undefined;
+  AddEditAddress: { addressId?: string } | undefined;
   NotificationScreen: undefined;
   ProductList: {
     categoryId?: string;
