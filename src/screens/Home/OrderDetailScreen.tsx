@@ -6,7 +6,7 @@ import { useOrder, useUpdateOrderStatus } from '../../hooks/useOrders';
 import { RootStackParamList } from '../../navigation/types';
 import { Card } from '../../components/Card';
 import { Button } from '../../components/Button';
-
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 
 type Props = NativeStackScreenProps<RootStackParamList, 'OrderDetail'>;
@@ -78,7 +78,8 @@ export const OrderDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         <View style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <Text style={styles.backButton}>←</Text>
+                    {/* <Text style={styles.backButton}>←</Text> */}
+                    <Ionicons name="arrow-back-outline" size={24} color="black" />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Chi tiết Đơn hàng</Text>
                 <View style={{ width: 30 }} />

@@ -28,7 +28,7 @@ export const Input = ({
   ...props
 }: InputProps) => {
   const isError = touched && error;
-  
+
   return (
     <View style={styles.container}>
       <Text style={styles.label}>{label}</Text>
