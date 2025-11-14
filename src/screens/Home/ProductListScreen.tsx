@@ -16,6 +16,7 @@ import { ProductListSkeleton } from '../../components/Skeleton';
 import { useProducts } from '../../hooks/useProducts';
 import { useWishlist } from '../../hooks/useWishlist';
 import { ProductFilters, ProductSort } from '../../types/product';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 type Props = NativeStackScreenProps<any, 'ProductList'>;
 
@@ -103,7 +104,8 @@ export const ProductListScreen: React.FC<Props> = ({ navigation, route }) => {
   const renderHeader = () => (
     <View style={styles.header}>
       <TouchableOpacity onPress={() => navigation.goBack()}>
-        <Text style={styles.backButton}>← Quay lại</Text>
+        {/* <Text style={styles.backButton}>← Quay lại</Text> */}
+        <Ionicons name="arrow-back-outline" size={24} color="white" />
       </TouchableOpacity>
       <Text style={styles.headerTitle}>
         {categoryName || 'Sản phẩm'}
@@ -265,8 +267,8 @@ const FilterModal: React.FC<{
                   style={[
                     styles.filterOption,
                     localFilters.minPrice === range.minPrice &&
-                      localFilters.maxPrice === range.maxPrice &&
-                      styles.filterOptionActive,
+                    localFilters.maxPrice === range.maxPrice &&
+                    styles.filterOptionActive,
                   ]}
                   onPress={() =>
                     setLocalFilters({
@@ -280,8 +282,8 @@ const FilterModal: React.FC<{
                     style={[
                       styles.filterOptionText,
                       localFilters.minPrice === range.minPrice &&
-                        localFilters.maxPrice === range.maxPrice &&
-                        styles.filterOptionTextActive,
+                      localFilters.maxPrice === range.maxPrice &&
+                      styles.filterOptionTextActive,
                     ]}
                   >
                     {range.label}
@@ -300,7 +302,7 @@ const FilterModal: React.FC<{
                     style={[
                       styles.filterChip,
                       localFilters.type?.includes(type.value) &&
-                        styles.filterChipActive,
+                      styles.filterChipActive,
                     ]}
                     onPress={() => toggleType(type.value)}
                   >
@@ -308,7 +310,7 @@ const FilterModal: React.FC<{
                       style={[
                         styles.filterChipText,
                         localFilters.type?.includes(type.value) &&
-                          styles.filterChipTextActive,
+                        styles.filterChipTextActive,
                       ]}
                     >
                       {type.label}
@@ -328,7 +330,7 @@ const FilterModal: React.FC<{
                     style={[
                       styles.filterChip,
                       localFilters.season?.includes(season.value) &&
-                        styles.filterChipActive,
+                      styles.filterChipActive,
                     ]}
                     onPress={() => toggleSeason(season.value)}
                   >
@@ -336,7 +338,7 @@ const FilterModal: React.FC<{
                       style={[
                         styles.filterChipText,
                         localFilters.season?.includes(season.value) &&
-                          styles.filterChipTextActive,
+                        styles.filterChipTextActive,
                       ]}
                     >
                       {season.label}
@@ -387,7 +389,7 @@ const SortModal: React.FC<{
               style={[
                 styles.sortOption,
                 JSON.stringify(currentSort) === JSON.stringify(option.value) &&
-                  styles.sortOptionActive,
+                styles.sortOptionActive,
               ]}
               onPress={() => onSelect(option.value)}
             >
@@ -395,7 +397,7 @@ const SortModal: React.FC<{
                 style={[
                   styles.sortOptionText,
                   JSON.stringify(currentSort) === JSON.stringify(option.value) &&
-                    styles.sortOptionTextActive,
+                  styles.sortOptionTextActive,
                 ]}
               >
                 {option.label}

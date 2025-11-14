@@ -15,6 +15,9 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useProduct, useReviews } from '../../hooks/useProducts';
 import { useWishlist } from '../../hooks/useWishlist';
 import { useCart } from '../../hooks/useCart';
+import Ionicons from '@expo/vector-icons/Ionicons';
+
+
 type Props = NativeStackScreenProps<any, 'ProductDetail'>;
 
 const { width } = Dimensions.get('window');
@@ -69,7 +72,8 @@ export const ProductDetailScreen: React.FC<Props> = ({ navigation, route }) => {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backButton}>← </Text>
+
+          <Ionicons name="arrow-back-outline" size={24} color="white" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Chi tiết sản phẩm</Text>
         <TouchableOpacity onPress={() => toggleWishlist(product.id)}>
