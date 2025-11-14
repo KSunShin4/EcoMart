@@ -20,7 +20,7 @@ export const SearchScreen: React.FC<Props> = ({ navigation }) => {
   const {
     searchQuery,
     setSearchQuery,
-    debouncedQuery,
+    submittedQuery,
     searchResults,
     isSearching,
     searchHistory,
@@ -28,25 +28,32 @@ export const SearchScreen: React.FC<Props> = ({ navigation }) => {
     clearHistory,
     deleteHistoryItem,
     suggestions,
+    submitSearch,
   } = useSearch();
 
   const { toggleWishlist, isInWishlist } = useWishlist();
   const [showHistory, setShowHistory] = useState(true);
 
   useEffect(() => {
-    // Show history when search is empty
-    setShowHistory(searchQuery.length === 0);
-  }, [searchQuery]);
+    // Show history when no search has been submitted
+    setShowHistory(submittedQuery.length === 0);
+  }, [submittedQuery]);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    if (query.length > 0) {
-      saveSearch(query);
+  };
+
+  const handleSubmitSearch = () => {
+    if (searchQuery.trim().length > 0) {
+      submitSearch();
+      saveSearch(searchQuery.trim());
+      setShowHistory(false);
     }
   };
 
   const handleSelectSuggestion = (suggestion: string) => {
     setSearchQuery(suggestion);
+    submitSearch(suggestion);
     saveSearch(suggestion);
     setShowHistory(false);
   };
@@ -66,6 +73,7 @@ export const SearchScreen: React.FC<Props> = ({ navigation }) => {
           onChangeText={handleSearch}
           autoFocus
           returnKeyType="search"
+          onSubmitEditing={handleSubmitSearch}
         />
         {searchQuery.length > 0 && (
           <TouchableOpacity onPress={() => setSearchQuery('')}>
@@ -73,6 +81,15 @@ export const SearchScreen: React.FC<Props> = ({ navigation }) => {
           </TouchableOpacity>
         )}
       </View>
+
+      {searchQuery.length > 0 && (
+        <TouchableOpacity 
+          onPress={handleSubmitSearch}
+          style={styles.searchButton}
+        >
+          <Ionicons name="search-outline" size={24} color="white" />
+        </TouchableOpacity>
+      )}
     </View>
   );
 
@@ -142,7 +159,7 @@ export const SearchScreen: React.FC<Props> = ({ navigation }) => {
       );
     }
 
-    if (debouncedQuery.length === 0) {
+    if (submittedQuery.length === 0) {
       return null;
     }
 
@@ -151,7 +168,7 @@ export const SearchScreen: React.FC<Props> = ({ navigation }) => {
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyIcon}>🔍</Text>
           <Text style={styles.emptyText}>
-            Không tìm thấy sản phẩm "{debouncedQuery}"
+            Không tìm thấy sản phẩm "{submittedQuery}"
           </Text>
         </View>
       );
@@ -213,6 +230,9 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
     paddingHorizontal: 16,
     gap: 12,
+  },
+  searchButton: {
+    padding: 4,
   },
   backIcon: {
     fontSize: 24,
