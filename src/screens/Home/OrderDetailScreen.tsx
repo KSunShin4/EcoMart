@@ -1,12 +1,23 @@
-// src/screens/Home/OrderDetailScreen.tsx
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Image, TouchableOpacity, Alert } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+    View,
+    Text,
+    ScrollView,
+    StyleSheet,
+    ActivityIndicator,
+    Image,
+    TouchableOpacity,
+    Alert,
+} from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useOrder, useUpdateOrderStatus } from '../../hooks/useOrders';
 import { RootStackParamList } from '../../navigation/types';
 import { Card } from '../../components/Card';
 import { Button } from '../../components/Button';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { getAddresses, Address } from '../../api/userApi';
+import { useFocusEffect } from '@react-navigation/native';
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 
 
 type Props = NativeStackScreenProps<RootStackParamList, 'OrderDetail'>;
@@ -15,7 +26,7 @@ const OrderItem = ({ item }: { item: any }) => (
     <View style={styles.itemContainer}>
         <Image source={{ uri: item.thumbnail }} style={styles.itemImage} />
         <View style={styles.itemDetails}>
-            <Text style={styles.itemName} numberOfLines={2}>{item.name}</Text>
+            <Text style={styles.itemName}>{item.name}</Text>
             <Text style={styles.itemInfo}>Giá: {item.price.toLocaleString('vi-VN')}đ</Text>
         </View>
         <Text style={styles.itemQuantity}>x{item.quantity}</Text>
@@ -33,43 +44,61 @@ export const OrderDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     const { data: order, isLoading, isError } = useOrder(orderId);
     const { mutate: updateStatus, isPending: isUpdating } = useUpdateOrderStatus();
 
-    // --- LOGIC XỬ LÝ ---
+    const [addresses, setAddresses] = useState<Address[]>([]);
+    const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+
+    const loadAddresses = async () => {
+        const all = await getAddresses();
+        setAddresses(all);
+
+        const defaultAddr = all.find(addr => addr.isDefault);
+        if (defaultAddr) setSelectedAddressId(defaultAddr.id);
+    };
+
+    useEffect(() => {
+        loadAddresses();
+    }, []);
+
+    useFocusEffect(
+        useCallback(() => {
+            loadAddresses();
+        }, [])
+    );
+
     const handlePayment = () => {
-        Alert.alert(
-            'Xác nhận thanh toán',
-            'Bạn có chắc chắn muốn hoàn tất thanh toán cho đơn hàng này?',
-            [
-                { text: 'Không' },
-                {
-                    text: 'Chắc chắn',
-                    onPress: () => updateStatus({ orderId, status: 'completed' }),
+        if (!selectedAddressId) {
+            Alert.alert('Vui lòng chọn địa chỉ giao hàng.');
+            return;
+        }
+
+        Alert.alert('Xác nhận', 'Bạn có chắc muốn hoàn tất thanh toán?', [
+            { text: 'Không' },
+            {
+                text: 'Chắc chắn',
+                onPress: () => {
+                    updateStatus({ orderId, status: 'completed' });
                 },
-            ]
-        );
+            },
+        ]);
     };
 
     const handleCancelOrder = () => {
-        Alert.alert(
-            'Xác nhận hủy đơn',
-            'Bạn có chắc chắn muốn hủy đơn hàng này không? Hành động này không thể hoàn tác.',
-            [
-                { text: 'Không', style: 'cancel' },
-                {
-                    text: 'Chắc chắn hủy',
-                    onPress: () => updateStatus({ orderId, status: 'cancelled' }),
-                    style: 'destructive',
-                },
-            ]
-        );
+        Alert.alert('Hủy đơn?', 'Bạn chắc chắn muốn hủy đơn hàng này?', [
+            { text: 'Không', style: 'cancel' },
+            {
+                text: 'Hủy đơn',
+                style: 'destructive',
+                onPress: () => updateStatus({ orderId, status: 'cancelled' }),
+            },
+        ]);
     };
-
 
     if (isLoading) {
         return <View style={styles.center}><ActivityIndicator size="large" /></View>;
     }
 
     if (isError || !order) {
-        return <View style={styles.center}><Text>Không tìm thấy thông tin đơn hàng.</Text></View>;
+        return <View style={styles.center}><Text>Không tìm thấy đơn hàng.</Text></View>;
     }
 
     const statusStyle = getStatusStyle(order.status);
@@ -78,13 +107,13 @@ export const OrderDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         <View style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
-                    {/* <Text style={styles.backButton}>←</Text> */}
                     <Ionicons name="arrow-back-outline" size={24} color="black" />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Chi tiết Đơn hàng</Text>
                 <View style={{ width: 30 }} />
             </View>
-            <ScrollView>
+
+            <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
                 <Card title="Thông tin chung">
                     <View style={styles.infoRow}>
                         <Text style={styles.infoLabel}>Mã đơn hàng:</Text>
@@ -92,7 +121,9 @@ export const OrderDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                     </View>
                     <View style={styles.infoRow}>
                         <Text style={styles.infoLabel}>Ngày đặt:</Text>
-                        <Text style={styles.infoValue}>{new Date(order.createdAt).toLocaleString('vi-VN')}</Text>
+                        <Text style={styles.infoValue}>
+                            {new Date(order.createdAt).toLocaleString('vi-VN')}
+                        </Text>
                     </View>
                     <View style={styles.infoRow}>
                         <Text style={styles.infoLabel}>Trạng thái:</Text>
@@ -108,6 +139,43 @@ export const OrderDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                     ))}
                 </Card>
 
+                <Card
+                    title="Địa chỉ giao hàng"
+                    meta={
+                        <TouchableOpacity onPress={() => navigation.navigate('AddEditAddress')}>
+                            <Text style={styles.addAddressText}>+ Thêm</Text>
+                        </TouchableOpacity>
+                    }
+                >
+                    {addresses.length === 0 ? (
+                        <Text>Bạn chưa có địa chỉ. Nhấn + Thêm để tạo mới.</Text>
+                    ) : (
+                        addresses.map((item) => (
+                            <TouchableOpacity
+                                key={item.id}
+                                onPress={() => setSelectedAddressId(item.id)}
+                            >
+                                <View
+                                    style={[
+                                        styles.addressItem,
+                                        item.id === selectedAddressId && styles.addressItemSelected,
+                                    ]}
+                                >
+                                    <Text style={styles.addressName}><FontAwesome5 name="address-card" size={24} color="gray" /> {item.name}</Text>
+                                    <Text style={styles.addressPhone}>{item.phone}</Text>
+                                    <Text style={styles.addressFull}>{item.fullAddress}</Text>
+                                    {/* {item.isDefault && (
+                                        <Text style={styles.defaultBadge}>Mặc định</Text>
+                                    )} */}
+                                    {/* {item.id === selectedAddressId && (
+                                        <Text style={styles.selectedIndicator}>Đã chọn ✅</Text>
+                                    )} */}
+                                </View>
+                            </TouchableOpacity>
+                        ))
+                    )}
+                </Card>
+
                 <Card title="Thanh toán">
                     <View style={styles.infoRow}>
                         <Text style={styles.infoLabel}>Tổng tiền:</Text>
@@ -115,7 +183,7 @@ export const OrderDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                     </View>
                 </Card>
             </ScrollView>
-            {/* Nút hành động chỉ hiển thị khi đơn hàng đang xử lý */}
+
             {order.status === 'pending' && (
                 <View style={styles.actionFooter}>
                     <Button
@@ -132,14 +200,9 @@ export const OrderDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                     </TouchableOpacity>
                 </View>
             )}
-
-
-
-
         </View>
     );
 };
-
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#F5F5F5' },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
@@ -154,7 +217,6 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: '#eee',
     },
-    backButton: { fontSize: 24, fontWeight: 'bold' },
     headerTitle: { fontSize: 18, fontWeight: 'bold' },
     infoRow: {
         flexDirection: 'row',
@@ -191,5 +253,61 @@ const styles = StyleSheet.create({
         color: '#EF4444',
         fontSize: 15,
         fontWeight: '500',
+    },
+    addressItem: {
+        padding: 14,
+        borderRadius: 10,
+        borderWidth: 1.5,
+        borderColor: '#E5E7EB',
+        marginBottom: 12,
+        backgroundColor: '#FFFFFF',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 4,
+        elevation: 2,
+    },
+    addressItemSelected: {
+        borderColor: '#10B981',
+        backgroundColor: '#D1FAE5',
+        elevation: 3,
+    },
+    addressName: {
+        fontSize: 15,
+        fontWeight: 'bold',
+        color: '#1F2937',
+        marginBottom: 2,
+    },
+    addressPhone: {
+        fontSize: 14,
+        color: '#4B5563',
+    },
+    addressFull: {
+        fontSize: 14,
+        color: '#374151',
+        marginTop: 4,
+        lineHeight: 18,
+    },
+    defaultBadge: {
+        marginTop: 6,
+        backgroundColor: '#10B981',
+        paddingHorizontal: 8,
+        paddingVertical: 2,
+        borderRadius: 6,
+        alignSelf: 'flex-start',
+        color: '#fff',
+        fontSize: 12,
+        fontWeight: '600',
+    },
+    selectedIndicator: {
+        marginTop: 6,
+        color: '#16A34A',
+        fontSize: 13,
+        fontWeight: '500',
+    },
+    addAddressText: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#10B981',
     },
 });
