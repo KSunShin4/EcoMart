@@ -1,13 +1,13 @@
 // src/screens/User/AccountScreen.tsx
 import React from 'react';
-import { SafeAreaView, StyleSheet, ScrollView, View, Text, TouchableOpacity } from 'react-native'; 
+import { StyleSheet, ScrollView, View, Text, TouchableOpacity } from 'react-native';
 import { useAuthStore } from '../../store/authStore';
 import { useNavigation } from '@react-navigation/native';
-import { Feather } from '@expo/vector-icons'; 
+import { Feather } from '@expo/vector-icons';
 import QRCode from 'react-native-qrcode-svg';
 import { useQuery } from '@tanstack/react-query';
 import * as userApi from '../../api/userApi';
-
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Card } from '../../components/Card';
 import { ClickableRow } from '../../components/ClickableRow';
 
@@ -17,7 +17,7 @@ type AccountNavigationProp = {
 
 export const AccountScreen = () => {
   const navigation = useNavigation<AccountNavigationProp>();
-  
+
   const user = useAuthStore((state: any) => state.user);
   const logoutAction = useAuthStore((state: any) => state.logout);
 
@@ -39,9 +39,9 @@ export const AccountScreen = () => {
   const onLogout = () => {
     logoutAction();
   };
-  
+
   // Lấy giá trị cho QR code (dựa theo text trong ảnh)
-  const qrCodeValue = "186422"; 
+  const qrCodeValue = "186422";
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -52,133 +52,133 @@ export const AccountScreen = () => {
             <Text style={styles.userName}>{user?.name || 'Khách'}</Text>
             <Text style={styles.points}>HẠNG BẠC - 6.495 điểm</Text>
           </View>
-          
+
           {/* QR Code và nút Quét tích điểm nằm ngang hàng */}
           <View style={styles.qrSection}>
             <View style={styles.qrCodeContainer}>
               <View style={styles.qrCodeWrapper}>
-                <QRCode 
-                  value={qrCodeValue} 
+                <QRCode
+                  value={qrCodeValue}
                   size={90}
                 />
               </View>
             </View>
-            
+
             <TouchableOpacity style={styles.qrButton} activeOpacity={0.7}>
               <Feather name="grid" size={22} color="#10B981" />
               <Text style={styles.qrButtonText}>Quét tích điểm</Text>
             </TouchableOpacity>
           </View>
-          
+
           <Text style={styles.barcodeText}>Đưa mã hoặc đọc số {qrCodeValue} để tích, sử dụng điểm</Text>
         </View>
-        
+
         {/* Thẻ chức năng (không có title) */}
         <Card>
-          <ClickableRow 
-            text="Thông báo" 
-            onPress={() => navigation.navigate('NotificationScreen')} 
+          <ClickableRow
+            text="Thông báo"
+            onPress={() => navigation.navigate('NotificationScreen')}
             icon="bell"
             badge={notificationsCount > 0 ? notificationsCount : undefined}
           />
-          <ClickableRow 
-            text="Tiền Dư" 
-            onPress={() => { /* TODO */ }} 
-            icon="dollar-sign" 
+          <ClickableRow
+            text="Tiền Dư"
+            onPress={() => { /* TODO */ }}
+            icon="dollar-sign"
             rightText="0đ"
-            rightTextColor="#333" 
+            rightTextColor="#333"
           />
-          <ClickableRow 
-            text="Phiếu mua hàng" 
-            onPress={() => { /* TODO */ }} 
-            icon="tag" 
+          <ClickableRow
+            text="Phiếu mua hàng"
+            onPress={() => { /* TODO */ }}
+            icon="tag"
           />
-          <ClickableRow 
-            text="Quà của tôi" 
-            onPress={() => { /* TODO */ }} 
-            icon="gift" 
+          <ClickableRow
+            text="Quà của tôi"
+            onPress={() => { /* TODO */ }}
+            icon="gift"
             badge={3}
           />
-          <ClickableRow 
-            text="Ưu đãi đặc biệt" 
-            onPress={() => { /* TODO */ }} 
+          <ClickableRow
+            text="Ưu đãi đặc biệt"
+            onPress={() => { /* TODO */ }}
             icon="star"
             badge="9+"
           />
-          <ClickableRow 
-            text="Tích điểm đổi quà" 
-            onPress={() => { /* TODO */ }} 
-            icon="award" 
+          <ClickableRow
+            text="Tích điểm đổi quà"
+            onPress={() => { /* TODO */ }}
+            icon="award"
             isLast
           />
         </Card>
 
         {/* Card Thông tin cá nhân */}
         <Card title="Thông tin cá nhân">
-          <ClickableRow 
-            text="Sửa thông tin cá nhân" 
-            onPress={() => navigation.navigate('EditProfile')} 
+          <ClickableRow
+            text="Sửa thông tin cá nhân"
+            onPress={() => navigation.navigate('EditProfile')}
             icon="user"
           />
-          <ClickableRow 
+          <ClickableRow
             text={`Địa chỉ nhận hàng${addressesCount > 0 ? ` (${addressesCount})` : ''}`}
-            onPress={() => navigation.navigate('Address')} 
+            onPress={() => navigation.navigate('Address')}
             icon="map-pin"
             isLast
           />
         </Card>
 
         {/* Card Hỗ trợ khách hàng */}
-        <Card 
+        <Card
           title="Hỗ trợ khách hàng"
           meta="Phiên bản: 2.0.27 (v1103)"
         >
-          <ClickableRow 
+          <ClickableRow
             text="Tư vấn: 1900.1908 (7:30 - 21:00)"
-            onPress={() => { /* TODO */ }} 
-            icon="phone" 
+            onPress={() => { /* TODO */ }}
+            icon="phone"
           />
-          <ClickableRow 
+          <ClickableRow
             text="Khiếu nại: 1800.1067 (7:30 - 21:00)"
-            onPress={() => { /* TODO */ }} 
+            onPress={() => { /* TODO */ }}
             icon="phone-call"
             rightText="Miễn phí"
           />
-          <ClickableRow 
-            text="Tìm kiếm cửa hàng" 
-            onPress={() => { /* TODO */ }} 
+          <ClickableRow
+            text="Tìm kiếm cửa hàng"
+            onPress={() => { /* TODO */ }}
             icon="map-pin"
           />
-          <ClickableRow 
+          <ClickableRow
             text="Mua phiếu mua hàng"
-            onPress={() => { /* TODO */ }} 
-            icon="tag" 
+            onPress={() => { /* TODO */ }}
+            icon="tag"
           />
-          <ClickableRow 
-            text="Các chính sách khác" 
-            onPress={() => { /* TODO */ }} 
-            icon="file-text" 
+          <ClickableRow
+            text="Các chính sách khác"
+            onPress={() => { /* TODO */ }}
+            icon="file-text"
           />
-          <ClickableRow 
+          <ClickableRow
             text="Cập nhật ứng dụng"
-            onPress={() => { /* TODO */ }} 
-            icon="arrow-down-circle" 
+            onPress={() => { /* TODO */ }}
+            icon="arrow-down-circle"
             isLast
           />
         </Card>
-        
+
         {/* Đăng xuất Card */}
         <Card>
-           <ClickableRow 
-              text="Đăng xuất" 
-              onPress={onLogout} 
-              icon="log-out" 
-              isLast
-              hideArrow
-            />
+          <ClickableRow
+            text="Đăng xuất"
+            onPress={onLogout}
+            icon="log-out"
+            isLast
+            hideArrow
+          />
         </Card>
 
-        <View style={{ height: 20 }} /> 
+        <View style={{ height: 20 }} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -189,8 +189,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F5F5F5',
   },
-  headerCard: { 
-    backgroundColor: '#E6F7F0', 
+  headerCard: {
+    backgroundColor: '#E6F7F0',
     padding: 16,
     marginHorizontal: 16,
     marginTop: 16,
@@ -209,10 +209,10 @@ const styles = StyleSheet.create({
   },
   points: {
     fontSize: 14,
-    color: '#4B5563', 
+    color: '#4B5563',
     fontWeight: '600',
     marginTop: 4,
-    textTransform: 'uppercase', 
+    textTransform: 'uppercase',
   },
   qrSection: {
     flexDirection: 'row',

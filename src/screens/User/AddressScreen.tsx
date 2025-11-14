@@ -1,13 +1,13 @@
 // src/screens/User/AddressScreen.tsx
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, FlatList, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as userApi from '../../api/userApi';
 import { Button } from '../../components/Button';
 import { RootStackParamList } from '../../navigation/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-
+import { SafeAreaView } from 'react-native-safe-area-context';
 type AddressNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Address'>;
 
 export const AddressScreen = () => {
@@ -86,7 +86,7 @@ export const AddressScreen = () => {
 
       {isLoading && <ActivityIndicator size="large" style={{ marginTop: 20 }} />}
       {error && <Text style={styles.errorText}>Không thể tải địa chỉ</Text>}
-      
+
       {!isLoading && (!addresses || addresses.length === 0) && (
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>📍</Text>
@@ -102,8 +102,8 @@ export const AddressScreen = () => {
         contentContainerStyle={!addresses || addresses.length === 0 ? styles.emptyList : styles.list}
         ListFooterComponent={
           <View style={{ padding: 16 }}>
-            <Button 
-              title="+ Thêm địa chỉ mới" 
+            <Button
+              title="+ Thêm địa chỉ mới"
               onPress={handleAdd}
             />
           </View>
@@ -138,37 +138,37 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#F0F0F0',
   },
-  addressHeader: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
+  addressHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'flex-start',
     marginBottom: 12,
   },
   addressInfo: {
     flex: 1,
   },
-  addressName: { 
-    fontSize: 16, 
+  addressName: {
+    fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 4,
   },
-  buttonGroup: { 
+  buttonGroup: {
     flexDirection: 'row',
     gap: 12,
   },
-  editButton: { 
-    color: '#10B981', 
+  editButton: {
+    color: '#10B981',
     fontSize: 14,
     fontWeight: '600',
   },
-  deleteButton: { 
+  deleteButton: {
     color: '#EF4444',
     fontSize: 14,
     fontWeight: '600',
   },
-  addressText: { 
-    fontSize: 14, 
-    color: '#666', 
+  addressText: {
+    fontSize: 14,
+    color: '#666',
     marginTop: 4,
     lineHeight: 20,
   },
