@@ -212,9 +212,9 @@ export const updateAddress = async (addressId: string, data: Partial<Address>): 
 /**
  * GỌI API: Xóa địa chỉ
  */
-export const deleteAddress = async (addressId: string): Promise<void> => {
+export const deleteAddress = async ({ userId, addressId }: { userId: string, addressId: string }): Promise<void> => {
   try {
-    await client.delete(`/addresses/${addressId}`);
+    await client.delete(`users/${userId}/addresses/${addressId}`);
     console.log('[userApi] Address deleted:', addressId);
   } catch (error: any) {
     console.error('[userApi] Error deleting address:', error);

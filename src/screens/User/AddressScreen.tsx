@@ -8,12 +8,14 @@ import { Button } from '../../components/Button';
 import { RootStackParamList } from '../../navigation/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAuthStore } from '../../store/authStore';
+
 type AddressNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Address'>;
 
 export const AddressScreen = () => {
   const navigation = useNavigation<AddressNavigationProp>();
   const queryClient = useQueryClient();
-
+    const userId = useAuthStore.getState().user?.id;
   // Dùng React Query để lấy dữ liệu từ Mock API
   const { data: addresses, isLoading, error } = useQuery({
     queryKey: ['addresses'],
@@ -36,6 +38,12 @@ export const AddressScreen = () => {
   };
 
   const handleDelete = (addressId: string, addressName: string) => {
+
+    if(!userId){
+      Alert.alert('Lỗi', 'User ID không hợp lệ. Vui lòng đăng nhập lại.');
+      return;
+    }
+
     Alert.alert(
       'Xác nhận xóa',
       `Bạn có chắc chắn muốn xóa địa chỉ "${addressName}"?`,
@@ -44,7 +52,10 @@ export const AddressScreen = () => {
         {
           text: 'Xóa',
           style: 'destructive',
-          onPress: () => deleteMutation.mutate(addressId),
+          onPress: () => deleteMutation.mutate({
+            userId: userId,
+            addressId: addressId,
+          }),
         },
       ]
     );
