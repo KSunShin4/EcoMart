@@ -9,7 +9,7 @@ import { useAuthStore } from '../store/authStore';
 export interface UseSearchResult {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
-  debouncedQuery: string;
+  submittedQuery: string;
   searchResults: Product[];
   isSearching: boolean;
   searchHistory: SearchHistory[];
@@ -18,21 +18,21 @@ export interface UseSearchResult {
   clearHistory: () => void;
   deleteHistoryItem: (id: string) => void;
   suggestions: string[];
+  submitSearch: (query?: string) => void;
 }
 
 export const useSearch = (): UseSearchResult => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const [submittedQuery, setSubmittedQuery] = useState('');
   const queryClient = useQueryClient();
   const userId = useAuthStore((state) => state.user?.id);
 
-  // Debounce search query (300ms)
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedQuery(searchQuery);
-    }, 300);
-
-    return () => clearTimeout(timer);
+  // Submit search function
+  const submitSearch = useCallback((query?: string) => {
+    const queryToSubmit = query !== undefined ? query : searchQuery;
+    if (queryToSubmit.trim().length > 0) {
+      setSubmittedQuery(queryToSubmit.trim());
+    }
   }, [searchQuery]);
 
   // Search products
@@ -40,9 +40,9 @@ export const useSearch = (): UseSearchResult => {
     data: searchResults = [],
     isLoading: isSearching,
   } = useQuery({
-    queryKey: ['search', debouncedQuery],
-    queryFn: () => productApi.searchProducts(debouncedQuery),
-    enabled: debouncedQuery.length > 0,
+    queryKey: ['search', submittedQuery],
+    queryFn: () => productApi.searchProducts(submittedQuery),
+    enabled: submittedQuery.length > 0,
   });
 
   // Get search history
@@ -87,28 +87,28 @@ export const useSearch = (): UseSearchResult => {
 
   // Generate suggestions from search history and current query
   const suggestions = useCallback(() => {
-    if (!debouncedQuery) {
+    if (!searchQuery) {
       return searchHistory.map(h => h.keyword).slice(0, 5);
     }
 
     const matchingHistory = searchHistory
-      .filter(h => h.keyword.toLowerCase().includes(debouncedQuery.toLowerCase()))
+      .filter(h => h.keyword.toLowerCase().includes(searchQuery.toLowerCase()))
       .map(h => h.keyword);
 
     const matchingTags = searchResults
       .flatMap(p => p.tags)
       .filter((tag, index, self) => 
-        tag.toLowerCase().includes(debouncedQuery.toLowerCase()) &&
+        tag.toLowerCase().includes(searchQuery.toLowerCase()) &&
         self.indexOf(tag) === index
       );
 
     return [...new Set([...matchingHistory, ...matchingTags])].slice(0, 5);
-  }, [debouncedQuery, searchHistory, searchResults]);
+  }, [searchQuery, searchHistory, searchResults]);
 
   return {
     searchQuery,
     setSearchQuery,
-    debouncedQuery,
+    submittedQuery,
     searchResults,
     isSearching,
     searchHistory,
@@ -117,5 +117,6 @@ export const useSearch = (): UseSearchResult => {
     clearHistory: clearHistoryMutation.mutate,
     deleteHistoryItem: deleteHistoryItemMutation.mutate,
     suggestions: suggestions(),
+    submitSearch,
   };
 };
