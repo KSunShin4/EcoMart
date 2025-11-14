@@ -1,11 +1,13 @@
 // src/screens/User/NotificationScreen.tsx
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useQuery } from '@tanstack/react-query';
 import * as userApi from '../../api/userApi';
 import { RootStackParamList } from '../../navigation/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 
 type NotificationNavigationProp = NativeStackNavigationProp<RootStackParamList, 'NotificationScreen'>;
 
@@ -47,7 +49,7 @@ export const NotificationScreen = () => {
       </View>
 
       {isLoading && <ActivityIndicator size="large" style={{ marginTop: 20 }} />}
-      
+
       {!isLoading && (!notifications || notifications.length === 0) && (
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>🔔</Text>
@@ -76,9 +78,9 @@ export const NotificationScreen = () => {
                 {item.status && (
                   <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) + '20' }]}>
                     <Text style={[styles.statusText, { color: getStatusColor(item.status) }]}>
-                      {item.status === 'pending' ? 'Đang xử lý' : 
-                       item.status === 'completed' ? 'Hoàn thành' : 
-                       item.status === 'cancelled' ? 'Đã hủy' : item.status}
+                      {item.status === 'pending' ? 'Đang xử lý' :
+                        item.status === 'completed' ? 'Hoàn thành' :
+                          item.status === 'cancelled' ? 'Đã hủy' : item.status}
                     </Text>
                   </View>
                 )}
@@ -118,8 +120,8 @@ const styles = StyleSheet.create({
   notificationContent: {
     flex: 1,
   },
-  notificationTitle: { 
-    fontSize: 16, 
+  notificationTitle: {
+    fontSize: 16,
     fontWeight: '600',
     color: '#333',
     marginBottom: 4,
@@ -135,8 +137,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 8,
   },
-  notificationTime: { 
-    fontSize: 12, 
+  notificationTime: {
+    fontSize: 12,
     color: '#999',
   },
   statusBadge: {

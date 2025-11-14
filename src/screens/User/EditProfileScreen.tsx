@@ -1,10 +1,10 @@
 // src/screens/User/EditProfileScreen.tsx
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { useNavigation } from '@react-navigation/native';
-
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Input } from '../../components/Input';
 import { Button } from '../../components/Button';
 import { useAuthStore } from '../../store/authStore';
@@ -20,7 +20,7 @@ export const EditProfileScreen = () => {
   const navigation = useNavigation();
   const user = useAuthStore((state: any) => state.user);
   const setUser = useAuthStore((state: any) => state.setUser);
-  
+
   const handleUpdate = async (
     values: { name: string; gender: string; phone: string },
     { setSubmitting }: { setSubmitting: (isSubmitting: boolean) => void }
@@ -29,7 +29,7 @@ export const EditProfileScreen = () => {
     try {
       // Gọi API để cập nhật profile
       const response = await userApi.updateProfile(values.name, values.gender);
-      
+
       // Cập nhật lại thông tin user trong store
       // Nếu user được tạo mới trên MockAPI, sẽ có ID mới từ MockAPI
       const updatedUser = {
@@ -38,14 +38,14 @@ export const EditProfileScreen = () => {
         gender: response.data.gender || values.gender,
         phone: response.data.phone || user?.phone || values.phone,
       };
-      
+
       setUser(updatedUser);
-      
+
       Alert.alert('Thành công', 'Đã lưu chỉnh sửa');
       navigation.goBack();
     } catch (error: any) {
       console.error('Error updating profile:', error);
-      
+
       // Nếu lỗi nhưng response vẫn có data (trường hợp MockAPI unavailable nhưng vẫn lưu local)
       if (error?.response?.data) {
         const updatedUser = {
@@ -59,7 +59,7 @@ export const EditProfileScreen = () => {
         navigation.goBack();
         return;
       }
-      
+
       const errorMessage = error?.response?.data?.message || error?.message || 'Không thể lưu. Vui lòng thử lại.';
       Alert.alert('Lỗi', errorMessage);
     } finally {
