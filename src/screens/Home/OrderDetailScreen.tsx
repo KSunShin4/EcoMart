@@ -5,8 +5,8 @@ import {
     ScrollView,
     StyleSheet,
     ActivityIndicator,
-    Image,
     TouchableOpacity,
+    Image,
     Alert,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -17,9 +17,8 @@ import { Button } from '../../components/Button';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { getAddresses, Address } from '../../api/userApi';
 import { useFocusEffect } from '@react-navigation/native';
+import client from '../../api/client';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-
-
 type Props = NativeStackScreenProps<RootStackParamList, 'OrderDetail'>;
 
 const OrderItem = ({ item }: { item: any }) => (
@@ -27,7 +26,9 @@ const OrderItem = ({ item }: { item: any }) => (
         <Image source={{ uri: item.thumbnail }} style={styles.itemImage} />
         <View style={styles.itemDetails}>
             <Text style={styles.itemName}>{item.name}</Text>
-            <Text style={styles.itemInfo}>Giá: {item.price.toLocaleString('vi-VN')}đ</Text>
+            <Text style={styles.itemInfo}>
+                Giá: {item.price.toLocaleString('vi-VN')}đ
+            </Text>
         </View>
         <Text style={styles.itemQuantity}>x{item.quantity}</Text>
     </View>
@@ -65,28 +66,39 @@ export const OrderDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         }, [])
     );
 
-    const handlePayment = () => {
+    const handlePayment = async () => {
         if (!selectedAddressId) {
-            Alert.alert('Vui lòng chọn địa chỉ giao hàng.');
+            Alert.alert('Vui lòng chọn địa chỉ.');
             return;
         }
 
-        Alert.alert('Xác nhận', 'Bạn có chắc muốn hoàn tất thanh toán?', [
+        const selected = addresses.find(a => a.id === selectedAddressId);
+        if (!selected) return;
+
+        Alert.alert('Xác nhận', 'Bạn muốn thanh toán đơn hàng này?', [
             { text: 'Không' },
             {
                 text: 'Chắc chắn',
-                onPress: () => {
-                    updateStatus({ orderId, status: 'completed' });
+                onPress: async () => {
+                    try {
+                        await client.put(`/orders/${orderId}`, {
+                            status: 'completed',
+                            shipping_address: selected.fullAddress, // ✅ Ghi chú: lưu full text
+                        });
+                        updateStatus({ orderId, status: 'completed' });
+                    } catch (err) {
+                        Alert.alert('Lỗi', 'Không thể hoàn tất thanh toán.');
+                    }
                 },
             },
         ]);
     };
 
     const handleCancelOrder = () => {
-        Alert.alert('Hủy đơn?', 'Bạn chắc chắn muốn hủy đơn hàng này?', [
+        Alert.alert('Hủy đơn hàng?', 'Bạn chắc chắn muốn hủy?', [
             { text: 'Không', style: 'cancel' },
             {
-                text: 'Hủy đơn',
+                text: 'Hủy',
                 style: 'destructive',
                 onPress: () => updateStatus({ orderId, status: 'cancelled' }),
             },
@@ -105,6 +117,7 @@ export const OrderDetailScreen: React.FC<Props> = ({ route, navigation }) => {
 
     return (
         <View style={styles.container}>
+            {/* Header */}
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                     <Ionicons name="arrow-back-outline" size={24} color="black" />
@@ -114,6 +127,7 @@ export const OrderDetailScreen: React.FC<Props> = ({ route, navigation }) => {
             </View>
 
             <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
+                {/* Thông tin chung */}
                 <Card title="Thông tin chung">
                     <View style={styles.infoRow}>
                         <Text style={styles.infoLabel}>Mã đơn hàng:</Text>
@@ -133,57 +147,79 @@ export const OrderDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                     </View>
                 </Card>
 
+                {/* Sản phẩm */}
                 <Card title={`Sản phẩm (${order.items.length})`}>
                     {order.items.map((item, index) => (
                         <OrderItem key={`${item.productId}-${index}`} item={item} />
                     ))}
                 </Card>
 
-                <Card
-                    title="Địa chỉ giao hàng"
-                    meta={
-                        <TouchableOpacity onPress={() => navigation.navigate('AddEditAddress')}>
-                            <Text style={styles.addAddressText}>+ Thêm</Text>
-                        </TouchableOpacity>
-                    }
-                >
-                    {addresses.length === 0 ? (
-                        <Text>Bạn chưa có địa chỉ. Nhấn + Thêm để tạo mới.</Text>
-                    ) : (
-                        addresses.map((item) => (
-                            <TouchableOpacity
-                                key={item.id}
-                                onPress={() => setSelectedAddressId(item.id)}
-                            >
-                                <View
-                                    style={[
-                                        styles.addressItem,
-                                        item.id === selectedAddressId && styles.addressItemSelected,
-                                    ]}
-                                >
-                                    <Text style={styles.addressName}><FontAwesome5 name="address-card" size={24} color="gray" /> {item.name}</Text>
-                                    <Text style={styles.addressPhone}>{item.phone}</Text>
-                                    <Text style={styles.addressFull}>{item.fullAddress}</Text>
-                                    {/* {item.isDefault && (
-                                        <Text style={styles.defaultBadge}>Mặc định</Text>
-                                    )} */}
-                                    {/* {item.id === selectedAddressId && (
-                                        <Text style={styles.selectedIndicator}>Đã chọn ✅</Text>
-                                    )} */}
-                                </View>
+                {/* Địa chỉ giao hàng (theo trạng thái) */}
+                {order.status === 'pending' && (
+                    <Card
+                        title="Địa chỉ giao hàng"
+                        meta={
+                            <TouchableOpacity onPress={() => navigation.navigate('AddEditAddress')}>
+                                <Text style={styles.addAddressText}>+ Thêm</Text>
                             </TouchableOpacity>
-                        ))
-                    )}
-                </Card>
+                        }
+                    >
+                        {addresses.length === 0 ? (
+                            <Text>Bạn chưa có địa chỉ. Nhấn + Thêm để tạo mới.</Text>
+                        ) : (
+                            addresses.map((item) => (
+                                <TouchableOpacity
+                                    key={item.id}
+                                    onPress={() => setSelectedAddressId(item.id)}
+                                >
+                                    <View
+                                        style={[
+                                            styles.addressItem,
+                                            item.id === selectedAddressId && styles.addressItemSelected,
+                                        ]}
+                                    >
+                                        <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
+                                            <View>
 
+                                                <FontAwesome5 name="address-card" size={24} color="black" />
+                                            </View>
+
+                                            <View style={{ flex: 1, flexDirection: 'column' }}>
+                                                <Text style={styles.addressFull}>{item.name}</Text>
+                                                <Text style={styles.addressPhone}>{item.phone}</Text>
+                                                <Text style={styles.addressFull}>{item.fullAddress}</Text>
+                                            </View>
+
+
+                                        </View>
+
+
+
+                                    </View>
+                                </TouchableOpacity>
+                            ))
+                        )}
+                    </Card>
+                )}
+
+                {order.status === 'completed' && order.shipping_address && (
+                    <Card title="Địa chỉ giao hàng">
+                        <Text style={styles.addressFull}>{order.shipping_address}</Text>
+                    </Card>
+                )}
+
+                {/* Tổng tiền */}
                 <Card title="Thanh toán">
                     <View style={styles.infoRow}>
                         <Text style={styles.infoLabel}>Tổng tiền:</Text>
-                        <Text style={styles.totalAmount}>{order.totalAmount.toLocaleString('vi-VN')}đ</Text>
+                        <Text style={styles.totalAmount}>
+                            {order.totalAmount.toLocaleString('vi-VN')}đ
+                        </Text>
                     </View>
                 </Card>
             </ScrollView>
 
+            {/* Footer */}
             {order.status === 'pending' && (
                 <View style={styles.actionFooter}>
                     <Button
@@ -215,7 +251,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         backgroundColor: '#fff',
         borderBottomWidth: 1,
-        borderBottomColor: '#eee',
+        borderBottomColor: '#E5E7EB',
     },
     headerTitle: { fontSize: 18, fontWeight: 'bold' },
     infoRow: {
@@ -225,7 +261,74 @@ const styles = StyleSheet.create({
     },
     infoLabel: { fontSize: 15, color: '#666' },
     infoValue: { fontSize: 15, color: '#333' },
-    totalAmount: { fontSize: 18, color: '#10B981', fontWeight: 'bold' },
+    totalAmount: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#10B981',
+    },
+    addAddressText: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#10B981',
+    },
+    addressItem: {
+        padding: 5,
+        borderRadius: 10,
+        borderWidth: 1.5,
+        borderColor: '#E5E7EB',
+        marginBottom: 6,
+        backgroundColor: '#FFFFFF',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.04,
+        shadowRadius: 2,
+        elevation: 2,
+    },
+    addressItemSelected: {
+        borderColor: '#10B981',
+        backgroundColor: '#ECFDF5',
+        elevation: 3,
+        paddingLeft: 40
+    },
+    addressName: {
+        fontSize: 15,
+        fontWeight: 'bold',
+        color: '#1F2937',
+        marginBottom: 2,
+
+
+    },
+    addressPhone: {
+        fontSize: 14,
+        color: '#4B5563',
+        fontWeight: '500',
+        paddingLeft: 10,
+    },
+    addressFull: {
+        fontSize: 14,
+        color: '#374151',
+        marginTop: 4,
+        lineHeight: 20,
+        paddingLeft: 10,
+
+    },
+    selectedIndicator: {
+        marginTop: 6,
+        color: '#16A34A',
+        fontSize: 13,
+        fontWeight: '500',
+    },
+    defaultBadge: {
+        marginTop: 6,
+        backgroundColor: '#10B981',
+        paddingHorizontal: 8,
+        paddingVertical: 2,
+        borderRadius: 6,
+        alignSelf: 'flex-start',
+        color: '#fff',
+        fontSize: 12,
+        fontWeight: '600',
+    },
     itemContainer: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -253,61 +356,5 @@ const styles = StyleSheet.create({
         color: '#EF4444',
         fontSize: 15,
         fontWeight: '500',
-    },
-    addressItem: {
-        padding: 14,
-        borderRadius: 10,
-        borderWidth: 1.5,
-        borderColor: '#E5E7EB',
-        marginBottom: 12,
-        backgroundColor: '#FFFFFF',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 4,
-        elevation: 2,
-    },
-    addressItemSelected: {
-        borderColor: '#10B981',
-        backgroundColor: '#D1FAE5',
-        elevation: 3,
-    },
-    addressName: {
-        fontSize: 15,
-        fontWeight: 'bold',
-        color: '#1F2937',
-        marginBottom: 2,
-    },
-    addressPhone: {
-        fontSize: 14,
-        color: '#4B5563',
-    },
-    addressFull: {
-        fontSize: 14,
-        color: '#374151',
-        marginTop: 4,
-        lineHeight: 18,
-    },
-    defaultBadge: {
-        marginTop: 6,
-        backgroundColor: '#10B981',
-        paddingHorizontal: 8,
-        paddingVertical: 2,
-        borderRadius: 6,
-        alignSelf: 'flex-start',
-        color: '#fff',
-        fontSize: 12,
-        fontWeight: '600',
-    },
-    selectedIndicator: {
-        marginTop: 6,
-        color: '#16A34A',
-        fontSize: 13,
-        fontWeight: '500',
-    },
-    addAddressText: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: '#10B981',
     },
 });
